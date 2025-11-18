@@ -45,7 +45,10 @@ export const loginUser = async (req, res) => {
 			maxAge: 30 * 24 * 60 * 60 * 1000,
 		})
 
-		return res.status(200).json({ message: "Sesion iniciada!" })
+		return res.status(200).json({
+			message: "Sesion iniciada!",
+			user: ADMIN_USER,
+		})
 	} catch (error) {
 		req.log.error("Error en loginUser:", error)
 		return res
@@ -77,7 +80,9 @@ export const refreshAccessToken = (req, res) => {
 			maxAge: 2 * 60 * 60 * 1000,
 		})
 
-		return res.status(200).json({ message: "Token de acceso actualizado" })
+		return res
+			.status(200)
+			.json({ message: "Token de acceso actualizado", user: decoded.user })
 	} catch (error) {
 		return res
 			.status(403)
@@ -103,5 +108,25 @@ export const logoutUser = (req, res) => {
 		res
 			.status(500)
 			.json({ message: "Error al cerrar sesion, intente nuevamente" })
+	}
+}
+
+export const getSession = (req, res) => {
+	try {
+		const token = req.cookies.token
+
+		if (!token) {
+			return res.status(401).json({ message: "No autenticado" })
+		}
+
+		const decoded = jwt.verify(token, JWT_SECRET_KEY)
+
+		return res.status(200).json({
+			message: "Sesión válida",
+			user: decoded.user,
+		})
+	} catch (error) {
+		req.log.error("Error en getSession:", error)
+		return res.status(401).json({ message: "No autenticado" })
 	}
 }

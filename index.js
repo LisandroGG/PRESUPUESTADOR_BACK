@@ -8,6 +8,7 @@ import pino from "pino"
 import pinoHttp from "pino-http"
 import { sequelize } from "./src/config/database.js"
 import { mainRouter } from "./src/routes/index.js"
+import "./src/models/relationships.js"
 
 dotenv.config()
 

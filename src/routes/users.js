@@ -1,5 +1,6 @@
 import { Router } from "express"
 import {
+	getSession,
 	loginUser,
 	logoutUser,
 	refreshAccessToken,
@@ -10,3 +11,4 @@ export const usersRouter = Router()
 usersRouter.post("/login", loginUser)
 usersRouter.post("/refresh-token", refreshAccessToken)
 usersRouter.post("/logout", logoutUser)
+usersRouter.get("/get-session", getSession)
