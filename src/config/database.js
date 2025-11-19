@@ -28,9 +28,9 @@ export const sequelize =
 				dialectModule: pg,
 				logging: false,
 				dialectOptions: {},
-			});
+			})
 
-(async () => {
+;(async () => {
 	try {
 		await sequelize.authenticate()
 		console.log("DB CONNECTED")

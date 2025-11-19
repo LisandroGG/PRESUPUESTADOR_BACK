@@ -1,6 +1,8 @@
 import dotenv from "dotenv"
 import jwt from "jsonwebtoken"
 import { comparePassword } from "../helpers/password.js"
+import { userMessages } from "../helpers/messages.js"
+import { sendError } from "../helpers/response.js"
 
 dotenv.config()
 
@@ -13,12 +15,12 @@ export const loginUser = async (req, res) => {
 	try {
 		const { user, password } = req.body
 		if (user !== ADMIN_USER) {
-			return res.status(401).json({ message: "Credenciales Incorrectas" })
+			return sendError(res, userMessages.INVALID_CREDENTIALS, 401)
 		}
 
 		const isPasswordValid = await comparePassword(password, ADMIN_PASSWORD)
 		if (!isPasswordValid) {
-			return res.status(401).json({ message: "Credenciales Incorrectas" })
+			return sendError(res, userMessages.INVALID_CREDENTIALS, 401)
 		}
 
 		const payload = {
@@ -61,9 +63,7 @@ export const refreshAccessToken = (req, res) => {
 	const refreshToken = req.cookies.refreshToken
 
 	if (!refreshToken) {
-		return res
-			.status(401)
-			.json({ message: "No se proporciono el token de actualizacion" })
+		return sendError(res, userMessages.NOT_FOUND_TOKEN, 401)
 	}
 
 	try {
@@ -84,9 +84,7 @@ export const refreshAccessToken = (req, res) => {
 			.status(200)
 			.json({ message: "Token de acceso actualizado", user: decoded.user })
 	} catch (error) {
-		return res
-			.status(403)
-			.json({ message: "Token de actualizacion invalido o expirado" })
+		return sendError(res, userMessages.INVALID_TOKEN, 401)
 	}
 }
 
@@ -116,7 +114,7 @@ export const getSession = (req, res) => {
 		const token = req.cookies.token
 
 		if (!token) {
-			return res.status(401).json({ message: "No autenticado" })
+			return sendError(res, userMessages.NOT_AUTH, 401)
 		}
 
 		const decoded = jwt.verify(token, JWT_SECRET_KEY)
@@ -127,6 +125,6 @@ export const getSession = (req, res) => {
 		})
 	} catch (error) {
 		req.log.error("Error en getSession:", error)
-		return res.status(401).json({ message: "No autenticado" })
+		return sendError(res, userMessages.NOT_AUTH, 401)
 	}
 }

@@ -1,12 +1,12 @@
 import jwt from "jsonwebtoken"
+import { userMessages } from "../helpers/messages.js"
+import { sendError } from "../helpers/response.js"
 
 export const authUser = (req, res, next) => {
 	const token = req.cookies.token
 
 	if (!token) {
-		return res
-			.status(401)
-			.json({ message: "Token no encontrado. Acceso denegado." })
+		return sendError(res, userMessages.NOT_FOUND_TOKEN, 401)
 	}
 
 	try {
@@ -14,6 +14,6 @@ export const authUser = (req, res, next) => {
 		req.user = decoded
 		next()
 	} catch (error) {
-		return res.status(401).json({ message: "Token inválido o expirado." })
+		return sendError(res, userMessages.INVALID_TOKEN, 401)
 	}
 }
