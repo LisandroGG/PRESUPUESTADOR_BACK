@@ -16,7 +16,7 @@ export const Client = sequelize.define(
 		cuit: {
 			type: DataTypes.STRING,
 			allowNull: true,
-			unique: false,
+			unique: true,
 		},
 	},
 	{

@@ -1,7 +1,7 @@
 import dotenv from "dotenv"
 import jwt from "jsonwebtoken"
-import { comparePassword } from "../helpers/password.js"
 import { userMessages } from "../helpers/messages.js"
+import { comparePassword } from "../helpers/password.js"
 import { sendError } from "../helpers/response.js"
 
 dotenv.config()
