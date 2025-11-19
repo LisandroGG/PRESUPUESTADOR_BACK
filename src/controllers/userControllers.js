@@ -53,9 +53,7 @@ export const loginUser = async (req, res) => {
 		})
 	} catch (error) {
 		req.log.error("Error en loginUser:", error)
-		return res
-			.status(500)
-			.json({ message: "Error al iniciar sesion, intente nuevamente" })
+		return sendError(res, "Error al iniciar sesion, intente nuevamente", 500)
 	}
 }
 
@@ -103,9 +101,7 @@ export const logoutUser = (req, res) => {
 		res.status(200).json({ message: "Sesion cerrada correctamente!" })
 	} catch (error) {
 		req.log.error("Error en logoutUser:", error)
-		res
-			.status(500)
-			.json({ message: "Error al cerrar sesion, intente nuevamente" })
+		return sendError(res, "Error al cerrar sesion, intenta nuevamente", 500)
 	}
 }
 
