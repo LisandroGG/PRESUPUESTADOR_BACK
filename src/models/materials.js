@@ -1,8 +1,8 @@
 import { DataTypes } from "sequelize";
 import { sequelize } from "../config/database.js";
 
-export const Client = sequelize.define(
-    "Client",
+export const Material = sequelize.define(
+    "Material",
     {
         id: {
             type: DataTypes.INTEGER,
@@ -11,16 +11,19 @@ export const Client = sequelize.define(
         },
         name: {
             type: DataTypes.STRING,
-            allowNull: true,
+            allowNull: false,
         },
-        cuit: {
+        provider: {
             type: DataTypes.STRING,
-            allowNull: true,
-            unique: false,
+            allowNull: false,
+        },
+        cost: {
+            type: DataTypes.DECIMAL(10, 2),
+            allowNull: false,
         }
     },
     {
         timestamps: false,
-        tableName: "clients",
+        tableName: "materials",
     },
 );

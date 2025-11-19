@@ -28,9 +28,9 @@ export const sequelize =
 				dialectModule: pg,
 				logging: false,
 				dialectOptions: {},
-			})
+			});
 
-;(async (req, res) => {
+(async () => {
 	try {
 		await sequelize.authenticate()
 		console.log("DB CONNECTED")
@@ -38,6 +38,6 @@ export const sequelize =
 		await sequelize.sync({ alter: false })
 		console.log("MODELTS CONNECTED")
 	} catch (error) {
-		req.log.error("DB CONNECT ERROR:", error)
+		console.log("DB CONNECT ERROR:", error)
 	}
 })()
