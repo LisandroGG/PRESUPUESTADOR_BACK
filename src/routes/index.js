@@ -1,5 +1,10 @@
 import { Router } from "express"
 import { usersRouter } from "./users.js"
+import { materialsRouter } from "./materials.js"
+import { productsRouter } from "./products.js"
+import { clientsRouter } from "./clients.js"
+import { budgetsRouter } from "./budgets.js"
+import { paymentsRouter } from "./payments.js"
 
 export const mainRouter = Router()
 
@@ -8,3 +13,8 @@ mainRouter.get("/", (req, res) => {
 })
 
 mainRouter.use("/users", usersRouter)
+mainRouter.use("/materials", materialsRouter)
+mainRouter.use("/products", productsRouter)
+mainRouter.use("/clients", clientsRouter)
+mainRouter.use("/budgets", budgetsRouter)
+mainRouter.use("/payments", paymentsRouter)
