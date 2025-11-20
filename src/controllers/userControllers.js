@@ -47,7 +47,7 @@ export const loginUser = async (req, res) => {
 			maxAge: 30 * 24 * 60 * 60 * 1000,
 		})
 
-		return res.status(200).json({
+		res.status(200).json({
 			message: "Sesion iniciada!",
 			user: ADMIN_USER,
 		})
@@ -78,9 +78,10 @@ export const refreshAccessToken = (req, res) => {
 			maxAge: 2 * 60 * 60 * 1000,
 		})
 
-		return res
-			.status(200)
-			.json({ message: "Token de acceso actualizado", user: decoded.user })
+		res.status(200).json({ 
+			message: "Token de acceso actualizado", 
+			user: decoded.user 
+		})
 	} catch (error) {
 		return sendError(res, userMessages.INVALID_TOKEN, 401)
 	}
@@ -115,7 +116,7 @@ export const getSession = (req, res) => {
 
 		const decoded = jwt.verify(token, JWT_SECRET_KEY)
 
-		return res.status(200).json({
+		res.status(200).json({
 			message: "Sesión válida",
 			user: decoded.user,
 		})

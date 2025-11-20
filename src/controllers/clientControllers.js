@@ -2,7 +2,6 @@ import { Op } from "sequelize"
 import { clientMessages } from "../helpers/messages.js"
 import { sendError } from "../helpers/response.js"
 import { Client } from "../models/clients.js"
-import { validateCuit } from "../validations/clientValidations.js"
 
 // Get all clients
 export const getAllClients = async (req, res) => {
@@ -19,9 +18,6 @@ export const getAllClients = async (req, res) => {
 export const createClient = async (req, res) => {
 	const { name, cuit } = req.body
 	try {
-		if (!validateCuit(cuit)) {
-			return sendError(res, clientMessages.INVALID_CUIT, 400)
-		}
 		const existingClient = await Client.findOne({
 			where: {
 				[Op.or]: [name ? { name } : null, cuit ? { cuit } : null].filter(
@@ -33,7 +29,7 @@ export const createClient = async (req, res) => {
 			return sendError(res, "Nombre o CUIT ya registrados", 400)
 		}
 		const newClient = await Client.create({ name, cuit })
-		res.status(201).json({
+		res.status(200).json({
 			message: "Cliente creado exitosamente",
 			client: newClient,
 		})
@@ -65,9 +61,6 @@ export const updateClient = async (req, res) => {
 	const { name, cuit } = req.body
 
 	try {
-		if (!validateCuit(cuit)) {
-			return sendError(res, clientMessages.INVALID_CUIT, 400)
-		}
 		const client = await Client.findByPk(id)
 		if (!client) {
 			return sendError(res, clientMessages.NOT_FOUND, 404)
@@ -104,12 +97,16 @@ export const searchClients = async (req, res) => {
 			})
 		}
 
+		const whereClause = conditions.length > 0 
+			? { [Op.or]: conditions }
+			: {};
+		
 		const clients = await Client.findAll({
-			where: { [Op.or]: conditions },
+			where: whereClause
 		})
 		res.status(200).json({
 			message: "Clientes encontrados",
-			results: clients,
+			clients: clients,
 		})
 	} catch (error) {
 		req.log.error("Error al buscar clientes:", error)

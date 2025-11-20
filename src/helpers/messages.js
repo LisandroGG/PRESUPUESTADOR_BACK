@@ -7,5 +7,19 @@ export const userMessages = {
 
 export const clientMessages = {
 	NOT_FOUND: "Cliente no encontrado.",
-	INVALID_CUIT: "CUIT inválido",
+	REQUIRED_FIELD: "Debes ingresar almenos un dato",
+	INVALID_CUIT: "El CUIT debe tener 11 digitos",
+	INVALID_NAME: "El nombre solo puede contener letras y espacios.",
+}
+
+export const productMessages = {
+    
+}
+
+export const materialMessages = {
+    NOT_FOUND: "Material no encontrado.",
+    INVALID_COST: "El costo debe ser numerico y mayor a 0.",
+    INVALID_NAME: "El nombre solo puede contener letras y espacios.",
+    INVALID_PROVIDER: "El proveedor solo puede contener letras y espacios.",
+    DUPLICATE_MATERIAL: "Ya existe un material con ese nombre y proveedor.",
 }
