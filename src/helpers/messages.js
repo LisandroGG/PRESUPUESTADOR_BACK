@@ -13,13 +13,19 @@ export const clientMessages = {
 }
 
 export const productMessages = {
-    
+	NOT_FOUND: "Producto no encontrado.",
+	INVALID_NAME: "El nombre solo puede contener letras y espacios.",
+	INVALID_DESCRIPTION:
+		"La descripción solo puede contener letras, numeros y espacios",
+	INVALID_MATERIALS: "La lista de materiales es inválida",
+	INVALID_MATERIAL_QUANTITY: "El material debe incluir su cantidad",
+	DUPLICATE_PRODUCT: "Ya existe un producto con ese nombre",
 }
 
 export const materialMessages = {
-    NOT_FOUND: "Material no encontrado.",
-    INVALID_COST: "El costo debe ser numerico y mayor a 0.",
-    INVALID_NAME: "El nombre solo puede contener letras y espacios.",
-    INVALID_PROVIDER: "El proveedor solo puede contener letras y espacios.",
-    DUPLICATE_MATERIAL: "Ya existe un material con ese nombre y proveedor.",
+	NOT_FOUND: "Material no encontrado.",
+	INVALID_COST: "El costo debe ser numerico y mayor a 0.",
+	INVALID_NAME: "El nombre solo puede contener letras y espacios.",
+	INVALID_PROVIDER: "El proveedor solo puede contener letras y espacios.",
+	DUPLICATE_MATERIAL: "Ya existe un material con ese nombre y proveedor.",
 }

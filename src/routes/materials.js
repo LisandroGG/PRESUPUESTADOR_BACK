@@ -1,10 +1,10 @@
 import { Router } from "express"
 import {
-    createMaterial,
-    deleteMaterial,
-    updateMaterial,
-    getAllMaterials,
-    searchMaterials
+	createMaterial,
+	deleteMaterial,
+	getAllMaterials,
+	searchMaterials,
+	updateMaterial,
 } from "../controllers/materialControllers.js"
 import { authUser } from "../middlewares/authUser.js"
 import { validateMaterial } from "../middlewares/validateMaterial.js"
@@ -16,4 +16,3 @@ materialsRouter.post("/", authUser, validateMaterial, createMaterial)
 materialsRouter.put("/:id", authUser, validateMaterial, updateMaterial)
 materialsRouter.delete("/:id", authUser, deleteMaterial)
 materialsRouter.get("/search", authUser, searchMaterials)
-

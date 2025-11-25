@@ -80,7 +80,7 @@ export const updateClient = async (req, res) => {
 	}
 }
 
-// Search clients by name or cuit (optional)
+// Search clients by name or cuit
 export const searchClients = async (req, res) => {
 	const { name, cuit } = req.query
 	try {
@@ -97,12 +97,10 @@ export const searchClients = async (req, res) => {
 			})
 		}
 
-		const whereClause = conditions.length > 0 
-			? { [Op.or]: conditions }
-			: {};
-		
+		const whereClause = conditions.length > 0 ? { [Op.or]: conditions } : {}
+
 		const clients = await Client.findAll({
-			where: whereClause
+			where: whereClause,
 		})
 		res.status(200).json({
 			message: "Clientes encontrados",

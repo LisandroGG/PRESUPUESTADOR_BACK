@@ -78,9 +78,9 @@ export const refreshAccessToken = (req, res) => {
 			maxAge: 2 * 60 * 60 * 1000,
 		})
 
-		res.status(200).json({ 
-			message: "Token de acceso actualizado", 
-			user: decoded.user 
+		res.status(200).json({
+			message: "Token de acceso actualizado",
+			user: decoded.user,
 		})
 	} catch (error) {
 		return sendError(res, userMessages.INVALID_TOKEN, 401)

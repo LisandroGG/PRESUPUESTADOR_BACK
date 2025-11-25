@@ -6,7 +6,7 @@ export const validateCuit = (cuit) => {
 }
 
 export const validateClientName = (name) => {
-    if (!name) return true;
-    const regex = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
-    return regex.test(name.trim());
-};
+	if (!name) return true
+	const regex = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/
+	return regex.test(name.trim())
+}
