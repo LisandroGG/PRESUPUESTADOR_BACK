@@ -9,6 +9,14 @@ export const Payment = sequelize.define(
 			primaryKey: true,
 			autoIncrement: true,
 		},
+		type: {
+			type: DataTypes.STRING,
+			allowNull: false,
+		},
+		amount: {
+			type: DataTypes.DECIMAL(10, 2),
+			allowNull: false,
+		}
 	},
 	{
 		timestamps: false,

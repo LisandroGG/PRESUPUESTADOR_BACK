@@ -8,7 +8,6 @@ export const validateProductName = (name) => {
 export const validateProductDescription = (description) => {
 	if (!description) return false
 
-	// Permite letras, números, espacios, ., , - _
 	const regex = /^[A-Za-zÁÉÍÓÚáéíóúÑñ0-9 .,_-]+$/
 	return regex.test(description.trim())
 }

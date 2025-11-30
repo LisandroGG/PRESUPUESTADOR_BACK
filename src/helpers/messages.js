@@ -29,3 +29,9 @@ export const materialMessages = {
 	INVALID_PROVIDER: "El proveedor solo puede contener letras y espacios.",
 	DUPLICATE_MATERIAL: "Ya existe un material con ese nombre y proveedor.",
 }
+
+export const paymentMessages = {
+	NOT_FOUND: "Pago no encontrado.",
+	INVALID_AMOUNT: "El monto debe ser numerico y mayor a 0.",
+	INVALID_TYPE: "El tipo de pago es inválido.",
+}
