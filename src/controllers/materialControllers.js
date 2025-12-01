@@ -8,7 +8,7 @@ import { Material } from "../models/materials.js"
 export const getAllMaterials = async (req, res) => {
 	try {
 		const materials = await Material.findAll()
-		return res.status(200).json(materials)
+		res.status(200).json(materials)
 	} catch (error) {
 		req.log.error("Error al obtener materiales:")
 		return sendError(res, "Error al obtener materiales", 500)

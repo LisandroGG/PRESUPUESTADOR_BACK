@@ -32,6 +32,8 @@ export const materialMessages = {
 
 export const paymentMessages = {
 	NOT_FOUND: "Pago no encontrado.",
+	BADGET_NOT_FOUND: "Presupuesto no encontrado.",
 	INVALID_AMOUNT: "El monto debe ser numerico y mayor a 0.",
-	INVALID_TYPE: "El tipo de pago es inválido.",
+	INVALID_METHOD: "El metodo solo puede contener letras y espacios.",
+	INVALID_DATE: "La fecha debe ser una fecha valida.",
 }

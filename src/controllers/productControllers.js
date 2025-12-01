@@ -23,7 +23,7 @@ export const getAllProducts = async (req, res) => {
 				},
 			],
 		})
-		return res.status(200).json(products)
+		res.status(200).json(products)
 	} catch (error) {
 		req.log.error("Error al obtener productos", error)
 		return sendError(res, "Error al obtener productos", 500)
