@@ -1,8 +1,8 @@
-import { Budget } from "../models/budgets.js";
+import { Budget } from "../models/budgets.js"
 
 export const validateBadgetExists = async (id) => {
-    if (!id) return false
+	if (!id) return false
 
-    const badget = await Budget.findByPk(id)
-    return !!badget
+	const badget = await Budget.findByPk(id)
+	return !!badget
 }

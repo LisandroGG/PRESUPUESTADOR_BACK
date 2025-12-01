@@ -20,7 +20,7 @@ export const Payment = sequelize.define(
 		date: {
 			type: DataTypes.DATE,
 			allowNull: false,
-		}
+		},
 	},
 	{
 		timestamps: false,
