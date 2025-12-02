@@ -9,6 +9,10 @@ export const Budget = sequelize.define(
 			primaryKey: true,
 			autoIncrement: true,
 		},
+		description: {
+			type: DataTypes.STRING,
+			allowNull: false,
+		},
 	},
 	{
 		timestamps: false,

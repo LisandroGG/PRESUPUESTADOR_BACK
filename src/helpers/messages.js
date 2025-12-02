@@ -37,3 +37,15 @@ export const paymentMessages = {
 	INVALID_METHOD: "El metodo solo puede contener letras y espacios.",
 	INVALID_DATE: "La fecha debe ser una fecha valida.",
 }
+
+export const budgetMessages = {
+	NOT_FOUND: "Presupuesto no encontrado.",
+	CLIENT_NOT_FOUND: "Cliente no encontrado.",
+	INVALID_DESCRIPTION:
+		"La descripción solo puede contener letras, numeros y espacios",
+	INVALID_ITEMS: "La lista de items es inválida.",
+	INVALID_ITEMS_QUANTITY:
+		"La cantidad de los items debe ser numerica y mayor a 0.",
+	PRODUCT_NOT_FOUND: "Producto no encontrado.",
+	DUPLICATE_ITEM: "Hay productos duplicados en los items del presupuesto.",
+}

@@ -6,3 +6,45 @@ export const validateBadgetExists = async (id) => {
 	const badget = await Budget.findByPk(id)
 	return !!badget
 }
+
+export const validateBudgetDescription = (description) => {
+	if (!description) return false
+
+	const regex = /^[A-Za-zÁÉÍÓÚáéíóúÑñ0-9 .,_-]+$/
+	return regex.test(description.trim())
+}
+
+export const validateBudgetItems = (items) => {
+	if (!Array.isArray(items) || items.length === 0) return "INVALID_ITEMS"
+
+	const productIds = new Set()
+
+	for (const i of items) {
+		if (
+			typeof i.productId !== "number" ||
+			i.productId <= 0 ||
+			Number.isNaN(i.productId)
+		) {
+			return "INVALID_ITEMS"
+		}
+
+		if (i.quantity === undefined) {
+			return "INVALID_ITEMS_QUANTITY"
+		}
+
+		if (
+			typeof i.quantity !== "number" ||
+			i.quantity <= 0 ||
+			Number.isNaN(i.quantity)
+		) {
+			return "INVALID_ITEMS_QUANTITY"
+		}
+
+		if (productIds.has(i.productId)) {
+			return "DUPLICATE"
+		}
+
+		productIds.add(i.productId)
+	}
+	return true
+}

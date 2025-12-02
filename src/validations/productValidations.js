@@ -1,3 +1,12 @@
+import { Product } from "../models/products.js"
+
+export const validateProductExists = async (id) => {
+	if (!id) return false
+
+	const product = await Product.findByPk(id)
+	return !!product
+}
+
 export const validateProductName = (name) => {
 	if (!name) return false
 

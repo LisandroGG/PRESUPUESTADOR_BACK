@@ -3,7 +3,6 @@ import { sendError } from "../helpers/response.js"
 import { Payment } from "../models/payments.js"
 
 // Get all payments with ID badget
-
 export const getAllPaymentsFromBadget = async (req, res) => {
 	const { id } = req.params
 	try {

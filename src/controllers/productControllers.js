@@ -6,7 +6,6 @@ import { ProductMaterial } from "../models/productMaterials.js"
 import { Product } from "../models/products.js"
 
 // Get all products
-
 export const getAllProducts = async (req, res) => {
 	try {
 		const products = await Product.findAll({

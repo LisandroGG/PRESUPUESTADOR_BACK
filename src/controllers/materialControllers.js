@@ -4,7 +4,6 @@ import { sendError } from "../helpers/response.js"
 import { Material } from "../models/materials.js"
 
 // Get all materials
-
 export const getAllMaterials = async (req, res) => {
 	try {
 		const materials = await Material.findAll()

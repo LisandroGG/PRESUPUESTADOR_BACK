@@ -38,7 +38,10 @@ Product.hasMany(ProductMaterial, {
 	foreignKey: "productId",
 	as: "productMaterials",
 })
-Material.hasMany(ProductMaterial, { foreignKey: "materialId", as: "product" })
+Material.hasMany(ProductMaterial, {
+	foreignKey: "materialId",
+	as: "product",
+})
 ProductMaterial.belongsTo(Product, {
 	foreignKey: "productId",
 	as: "materialProducts",
