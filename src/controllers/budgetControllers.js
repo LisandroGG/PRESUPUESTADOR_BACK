@@ -11,7 +11,7 @@ import { Product } from "../models/products.js"
 export const getAllBudgets = async (req, res) => {
 	try {
 		const budgets = await Budget.findAll({
-			attributes: ["id", "description"],
+			attributes: ["id", "description", "status"],
 			include: [
 				{
 					model: Client,
@@ -59,7 +59,7 @@ export const getBudgetByClientId = async (req, res) => {
 	try {
 		const budget = await Budget.findAll({
 			where: { clientId },
-			attributes: ["id", "description"],
+			attributes: ["id", "description", "status"],
 			include: [
 				{
 					model: Client,
@@ -105,7 +105,7 @@ export const getBudgetByClientId = async (req, res) => {
 	}
 }
 
-// create a new budget
+// Create a new budget
 export const createBudget = async (req, res) => {
 	const { clientId, items, description } = req.body
 	try {
@@ -162,5 +162,25 @@ export const deleteBudget = async (req, res) => {
 	} catch (error) {
 		req.log.error("Error al eliminar presupuesto", error)
 		return sendError(res, "Error al eliminar presupuesto", 500)
+	}
+}
+
+// Update budget status
+export const updateBudgetStatus = async (req, res) => {
+	const { id } = req.params
+	const { status } = req.body
+	try {
+		const budget = await Budget.findByPk(id)
+		if (!budget) {
+			return sendError(res, budgetMessages.NOT_FOUND, 404)
+		}
+		budget.status = status
+		await budget.save()
+		res.status(200).json({
+			message: "Estado del presupuesto actualizado exitosamente",
+		})
+	} catch (error) {
+		req.log.error("Error al actualizar estado del presupuesto", error)
+		return sendError(res, "Error al actualizar estado del presupuesto", 500)
 	}
 }

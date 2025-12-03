@@ -8,7 +8,7 @@ import { validateClientExists } from "../validations/clientValidations.js"
 import { validateProductExists } from "../validations/productValidations.js"
 
 export const validateBudget = async (req, res, next) => {
-	const { description, clientId, items } = req.body
+	const { description, clientId, items, status } = req.body
 
 	const isCreate = req.method === "POST"
 
@@ -50,6 +50,13 @@ export const validateBudget = async (req, res, next) => {
 			if (!productExist) {
 				return sendError(res, budgetMessages.PRODUCT_NOT_FOUND, 404)
 			}
+		}
+	}
+
+	if (status !== undefined) {
+		const validStatuses = ["pending", "approved", "paid"]
+		if (!validStatuses.includes(status)) {
+			return sendError(res, budgetMessages.INVALID_STATUS, 400)
 		}
 	}
 

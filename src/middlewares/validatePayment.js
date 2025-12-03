@@ -8,7 +8,7 @@ import {
 } from "../validations/paymentValidations.js"
 
 export const validatePayment = async (req, res, next) => {
-	const { method, amount, date, badgetId } = req.body
+	const { method, amount, date, budgetId } = req.body
 
 	const isCreate = req.method === "POST"
 
@@ -34,9 +34,9 @@ export const validatePayment = async (req, res, next) => {
 
 	// BADGET ID
 
-	if (isCreate || badgetId !== undefined) {
-		const badgetExists = await validateBadgetExists(badgetId)
-		if (!badgetExists) {
+	if (isCreate || budgetId !== undefined) {
+		const budgetExists = await validateBadgetExists(budgetId)
+		if (!budgetExists) {
 			return sendError(res, paymentMessages.BADGET_NOT_FOUND, 404)
 		}
 	}

@@ -48,4 +48,5 @@ export const budgetMessages = {
 		"La cantidad de los items debe ser numerica y mayor a 0.",
 	PRODUCT_NOT_FOUND: "Producto no encontrado.",
 	DUPLICATE_ITEM: "Hay productos duplicados en los items del presupuesto.",
+	INVALID_STATUS: "El estado del presupuesto no es valido.",
 }
