@@ -105,6 +105,58 @@ export const getBudgetByClientId = async (req, res) => {
 	}
 }
 
+// Get a budget by ID
+export const getBudgetById = async (req, res) => {
+	const { id } = req.params
+	try {
+		const budget = await Budget.findAll({
+			where: { id },
+			attributes: ["id", "description", "status"],
+			include: [
+				{
+					model: Client,
+					as: "client",
+				},
+				{
+					model: BudgetItem,
+					as: "items",
+					attributes: ["id", "quantity"],
+					include: [
+						{
+							model: Product,
+							as: "product",
+							attributes: ["id", "name", "description"],
+							include: [
+								{
+									model: Material,
+									attributes: ["id", "name", "provider", "cost"],
+									as: "materials",
+									through: {
+										attributes: ["quantity"],
+									},
+								},
+							],
+						},
+					],
+				},
+				{
+					model: Payment,
+					as: "payments",
+					attributes: ["id", "amount", "date", "method"],
+				},
+			],
+		})
+
+		if (!budget) {
+			return sendError(res, budgetMessages.NOT_FOUND, 404)
+		}
+		res.status(200).json(budget)
+	} catch (error) {
+		req.log.error("Error al obtener presupuesto", error)
+		return sendError(res, "Error al obtener presupuesto", 500)
+	}
+}
+
 // Create a new budget
 export const createBudget = async (req, res) => {
 	const { clientId, items, description } = req.body
@@ -184,3 +236,6 @@ export const updateBudgetStatus = async (req, res) => {
 		return sendError(res, "Error al actualizar estado del presupuesto", 500)
 	}
 }
+
+// Get pdf of a budget
+export const getBudgetPdf = async (req, res) => {}

@@ -4,6 +4,8 @@ import {
 	deleteBudget,
 	getAllBudgets,
 	getBudgetByClientId,
+	getBudgetById,
+	getBudgetPdf,
 	updateBudgetStatus,
 } from "../controllers/budgetControllers.js"
 import { authUser } from "../middlewares/authUser.js"
@@ -14,5 +16,7 @@ export const budgetsRouter = Router()
 budgetsRouter.get("/", authUser, getAllBudgets)
 budgetsRouter.post("/", authUser, validateBudget, createBudget)
 budgetsRouter.put("/status/:id", authUser, validateBudget, updateBudgetStatus)
-budgetsRouter.get("/:clientId", authUser, getBudgetByClientId)
+budgetsRouter.get("/client/:clientId", authUser, getBudgetByClientId)
+budgetsRouter.get("/detail/:id", authUser, getBudgetById)
+budgetsRouter.get("/pdf/:id", authUser, getBudgetPdf)
 budgetsRouter.delete("/:id", authUser, deleteBudget)
