@@ -12,39 +12,6 @@ export const getAllBudgets = async (req, res) => {
 	try {
 		const budgets = await Budget.findAll({
 			attributes: ["id", "description", "status"],
-			include: [
-				{
-					model: Client,
-					as: "client",
-				},
-				{
-					model: BudgetItem,
-					as: "items",
-					attributes: ["id", "quantity"],
-					include: [
-						{
-							model: Product,
-							as: "product",
-							attributes: ["id", "name", "description"],
-							include: [
-								{
-									model: Material,
-									attributes: ["id", "name", "provider", "cost"],
-									as: "materials",
-									through: {
-										attributes: ["quantity"],
-									},
-								},
-							],
-						},
-					],
-				},
-				{
-					model: Payment,
-					as: "payments",
-					attributes: ["id", "amount", "date", "method"],
-				},
-			],
 		})
 		res.status(200).json(budgets)
 	} catch (error) {
@@ -60,42 +27,9 @@ export const getBudgetByClientId = async (req, res) => {
 		const budget = await Budget.findAll({
 			where: { clientId },
 			attributes: ["id", "description", "status"],
-			include: [
-				{
-					model: Client,
-					as: "client",
-				},
-				{
-					model: BudgetItem,
-					as: "items",
-					attributes: ["id", "quantity"],
-					include: [
-						{
-							model: Product,
-							as: "product",
-							attributes: ["id", "name", "description"],
-							include: [
-								{
-									model: Material,
-									attributes: ["id", "name", "provider", "cost"],
-									as: "materials",
-									through: {
-										attributes: ["quantity"],
-									},
-								},
-							],
-						},
-					],
-				},
-				{
-					model: Payment,
-					as: "payments",
-					attributes: ["id", "amount", "date", "method"],
-				},
-			],
 		})
 
-		if (!budget) {
+		if (budget.length === 0) {
 			return sendError(res, budgetMessages.NOT_FOUND, 404)
 		}
 		res.status(200).json(budget)
@@ -109,8 +43,7 @@ export const getBudgetByClientId = async (req, res) => {
 export const getBudgetById = async (req, res) => {
 	const { id } = req.params
 	try {
-		const budget = await Budget.findAll({
-			where: { id },
+		const budget = await Budget.findByPk(id, {
 			attributes: ["id", "description", "status"],
 			include: [
 				{
