@@ -1,13 +1,21 @@
 import { Op } from "sequelize"
 import { clientMessages } from "../helpers/messages.js"
+import { buildPagedResponse, getPagination } from "../helpers/pagination.js"
 import { sendError } from "../helpers/response.js"
 import { Client } from "../models/clients.js"
 
 // Get all clients
 export const getAllClients = async (req, res) => {
 	try {
-		const clients = await Client.findAll()
-		res.status(200).json(clients)
+		const { page, limit, offset } = getPagination(req.query, 9)
+
+		const { count: total, rows } = await Client.findAndCountAll({
+			limit,
+			offset,
+			order: [["id", "DESC"]],
+		})
+
+		return res.status(200).json(buildPagedResponse(rows, total, page, limit))
 	} catch (error) {
 		req.log.error("Error al obtener clientes:", error)
 		return sendError(res, "Error al obtener clientes", 500)
@@ -82,8 +90,11 @@ export const updateClient = async (req, res) => {
 
 // Search clients by name or cuit
 export const searchClients = async (req, res) => {
-	const { name, cuit } = req.query
 	try {
+		const { name, cuit } = req.query
+
+		const { page, limit, offset } = getPagination(req.query, 9)
+
 		const conditions = []
 
 		if (name) {
@@ -91,21 +102,21 @@ export const searchClients = async (req, res) => {
 				name: { [Op.iLike]: `%${name}%` },
 			})
 		}
+
 		if (cuit) {
-			conditions.push({
-				cuit: cuit,
-			})
+			conditions.push({ cuit })
 		}
 
 		const whereClause = conditions.length > 0 ? { [Op.or]: conditions } : {}
 
-		const clients = await Client.findAll({
+		const { count: total, rows } = await Client.findAndCountAll({
 			where: whereClause,
+			limit,
+			offset,
+			order: [["id", "DESC"]],
 		})
-		res.status(200).json({
-			message: "Clientes encontrados",
-			clients: clients,
-		})
+
+		return res.status(200).json(buildPagedResponse(rows, total, page, limit))
 	} catch (error) {
 		req.log.error("Error al buscar clientes:", error)
 		return sendError(res, "Error al buscar clientes", 500)
