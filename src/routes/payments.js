@@ -9,6 +9,6 @@ import { validatePayment } from "../middlewares/validatePayment.js"
 
 export const paymentsRouter = Router()
 
-paymentsRouter.get("/:id", authUser, getAllPaymentsFromBadget)
+paymentsRouter.get("/:budgetId", authUser, getAllPaymentsFromBadget)
 paymentsRouter.post("/", authUser, validatePayment, createPayment)
 paymentsRouter.delete("/:id", authUser, deletePayment)

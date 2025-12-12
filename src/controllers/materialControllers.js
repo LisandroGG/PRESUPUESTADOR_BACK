@@ -1,13 +1,21 @@
 import { Op } from "sequelize"
 import { materialMessages } from "../helpers/messages.js"
+import { buildPagedResponse, getPagination } from "../helpers/pagination.js"
 import { sendError } from "../helpers/response.js"
 import { Material } from "../models/materials.js"
 
 // Get all materials
 export const getAllMaterials = async (req, res) => {
 	try {
-		const materials = await Material.findAll()
-		res.status(200).json(materials)
+		const { page, limit, offset } = getPagination(req.query, 9)
+
+		const { count: total, rows } = await Material.findAndCountAll({
+			limit,
+			offset,
+			order: [["id", "DESC"]],
+		})
+
+		res.status(200).json(buildPagedResponse(rows, total, page, limit))
 	} catch (error) {
 		req.log.error("Error al obtener materiales:")
 		return sendError(res, "Error al obtener materiales", 500)
@@ -80,8 +88,11 @@ export const updateMaterial = async (req, res) => {
 
 // Search materials by name or provider
 export const searchMaterials = async (req, res) => {
-	const { name, provider } = req.query
 	try {
+		const { name, provider } = req.query
+
+		const { page, limit, offset } = getPagination(req.query, 9)
+
 		const conditions = []
 		if (name) {
 			conditions.push({
@@ -96,13 +107,13 @@ export const searchMaterials = async (req, res) => {
 
 		const whereClause = conditions.length > 0 ? { [Op.and]: conditions } : {}
 
-		const materials = await Material.findAll({
+		const { count: total, rows } = await Material.findAndCountAll({
 			where: whereClause,
+			limit,
+			offset,
+			order: [["id", "DESC"]],
 		})
-		res.status(200).json({
-			message: "Materiales encontrados",
-			materials: materials,
-		})
+		res.status(200).json(buildPagedResponse(rows, total, page, limit))
 	} catch (error) {
 		req.log.error("Error al buscar materiales:", error)
 		return sendError(res, "Error al buscar materiales", 500)

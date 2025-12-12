@@ -1,5 +1,6 @@
 import { Op } from "sequelize"
 import { productMessages } from "../helpers/messages.js"
+import { buildPagedResponse, getPagination } from "../helpers/pagination.js"
 import { sendError } from "../helpers/response.js"
 import { Material } from "../models/materials.js"
 import { ProductMaterial } from "../models/productMaterials.js"
@@ -8,7 +9,11 @@ import { Product } from "../models/products.js"
 // Get all products
 export const getAllProducts = async (req, res) => {
 	try {
-		const products = await Product.findAll({
+		const { page, limit, offset } = getPagination(req.query, 9)
+		const { count: total, rows } = await Product.findAndCountAll({
+			limit,
+			offset,
+			order: [["id", "DESC"]],
 			include: [
 				{
 					model: ProductMaterial,
@@ -22,7 +27,7 @@ export const getAllProducts = async (req, res) => {
 				},
 			],
 		})
-		res.status(200).json(products)
+		res.status(200).json(buildPagedResponse(rows, total, page, limit))
 	} catch (error) {
 		req.log.error("Error al obtener productos", error)
 		return sendError(res, "Error al obtener productos", 500)
@@ -149,8 +154,11 @@ export const updateProduct = async (req, res) => {
 
 // Search products by name
 export const searchProducts = async (req, res) => {
-	const { name } = req.query
 	try {
+		const { name } = req.query
+
+		const { page, limit, offset } = getPagination(req.query, 9)
+
 		const conditions = []
 		if (name) {
 			conditions.push({
@@ -160,13 +168,13 @@ export const searchProducts = async (req, res) => {
 
 		const whereClause = conditions.length > 0 ? { [Op.and]: conditions } : {}
 
-		const products = await Product.findAll({
+		const { count: total, rows } = await Product.findAndCountAll({
 			where: whereClause,
+			limit,
+			offset,
+			order: [["id", "DESC"]],
 		})
-		res.status(200).json({
-			message: "Productos encontrados",
-			products: products,
-		})
+		res.status(200).json(buildPagedResponse(rows, total, page, limit))
 	} catch (error) {
 		req.log.error("Error al buscar productos", error)
 		return sendError(res, "Error al buscar productos", 500)

@@ -1,18 +1,23 @@
 import { paymentMessages } from "../helpers/messages.js"
+import { buildPagedResponse, getPagination } from "../helpers/pagination.js"
 import { sendError } from "../helpers/response.js"
 import { Payment } from "../models/payments.js"
 
 // Get all payments with ID badget
 export const getAllPaymentsFromBadget = async (req, res) => {
-	const { id } = req.params
 	try {
-		const payments = await Payment.findAll({
-			where: { budgetId: id },
+		const { budgetId } = req.params
+		const { page, limit, offset } = getPagination(req.query, 9)
+		const { count: total, rows } = await Payment.findAndCountAll({
+			where: { budgetId },
+			limit,
+			offset,
+			order: [["id", "DESC"]],
 		})
-		if (payments.length === 0) {
+		if (total === 0) {
 			return sendError(res, paymentMessages.NOT_FOUND, 404)
 		}
-		res.status(200).json(payments)
+		res.status(200).json(buildPagedResponse(rows, total, page, limit))
 	} catch (error) {
 		req.log.error("Error al obtener pagos del presupuesto", error)
 		return sendError(res, "Error al obtener pagos del presupuesto", 500)

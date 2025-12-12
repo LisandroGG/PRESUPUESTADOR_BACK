@@ -1,4 +1,5 @@
 import { budgetMessages } from "../helpers/messages.js"
+import { buildPagedResponse, getPagination } from "../helpers/pagination.js"
 import { sendError } from "../helpers/response.js"
 import { BudgetItem } from "../models/budgetItems.js"
 import { Budget } from "../models/budgets.js"
@@ -10,10 +11,14 @@ import { Product } from "../models/products.js"
 // Get all budgets
 export const getAllBudgets = async (req, res) => {
 	try {
-		const budgets = await Budget.findAll({
+		const { page, limit, offset } = getPagination(req.query, 9)
+		const { count: total, rows } = await Budget.findAndCountAll({
+			limit,
+			offset,
+			order: [["id", "DESC"]],
 			attributes: ["id", "description", "status"],
 		})
-		res.status(200).json(budgets)
+		res.status(200).json(buildPagedResponse(rows, total, page, limit))
 	} catch (error) {
 		req.log.error("Error al obtener presupuestos", error)
 		return sendError(res, "Error al obtener presupuestos", 500)
@@ -22,17 +27,20 @@ export const getAllBudgets = async (req, res) => {
 
 // Get a budget by client ID
 export const getBudgetByClientId = async (req, res) => {
-	const { clientId } = req.params
 	try {
-		const budget = await Budget.findAll({
+		const { clientId } = req.params
+		const { page, limit, offset } = getPagination(req.query, 9)
+		const { count: total, rows } = await Budget.findAndCountAll({
 			where: { clientId },
+			limit,
+			offset,
 			attributes: ["id", "description", "status"],
 		})
 
-		if (budget.length === 0) {
+		if (total === 0) {
 			return sendError(res, budgetMessages.NOT_FOUND, 404)
 		}
-		res.status(200).json(budget)
+		res.status(200).json(buildPagedResponse(rows, total, page, limit))
 	} catch (error) {
 		req.log.error("Error al obtener presupuesto del cliente", error)
 		return sendError(res, "Error al obtener presupuesto del cliente", 500)
