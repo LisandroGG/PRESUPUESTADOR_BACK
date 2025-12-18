@@ -3,9 +3,9 @@ import {
 	createProduct,
 	deleteProduct,
 	getAllProducts,
+	getProductById,
 	searchProducts,
 	updateProduct,
-	getProductById
 } from "../controllers/productControllers.js"
 import { authUser } from "../middlewares/authUser.js"
 import { validateProduct } from "../middlewares/validateProduct.js"
