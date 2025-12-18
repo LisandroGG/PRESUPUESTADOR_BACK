@@ -7,7 +7,7 @@ import { Client } from "../models/clients.js"
 // Get all clients
 export const getAllClients = async (req, res) => {
 	try {
-		const { page, limit, offset } = getPagination(req.query, 9)
+		const { page, limit, offset } = getPagination(req.query, 12)
 
 		const { count: total, rows } = await Client.findAndCountAll({
 			limit,

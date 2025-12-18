@@ -7,7 +7,7 @@ import { Material } from "../models/materials.js"
 // Get all materials
 export const getAllMaterials = async (req, res) => {
 	try {
-		const { page, limit, offset } = getPagination(req.query, 9)
+		const { page, limit, offset } = getPagination(req.query, 12)
 
 		const { count: total, rows } = await Material.findAndCountAll({
 			limit,

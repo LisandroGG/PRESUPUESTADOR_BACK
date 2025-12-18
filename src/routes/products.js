@@ -5,6 +5,7 @@ import {
 	getAllProducts,
 	searchProducts,
 	updateProduct,
+	getProductById
 } from "../controllers/productControllers.js"
 import { authUser } from "../middlewares/authUser.js"
 import { validateProduct } from "../middlewares/validateProduct.js"
@@ -14,5 +15,6 @@ export const productsRouter = Router()
 productsRouter.get("/", authUser, getAllProducts)
 productsRouter.post("/", authUser, validateProduct, createProduct)
 productsRouter.put("/:id", authUser, validateProduct, updateProduct)
+productsRouter.get("/detail/:id", authUser, getProductById)
 productsRouter.delete("/:id", authUser, deleteProduct)
 productsRouter.get("/search", authUser, searchProducts)

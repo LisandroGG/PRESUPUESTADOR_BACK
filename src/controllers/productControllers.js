@@ -14,6 +14,20 @@ export const getAllProducts = async (req, res) => {
 			limit,
 			offset,
 			order: [["id", "DESC"]],
+		})
+		res.status(200).json(buildPagedResponse(rows, total, page, limit))
+	} catch (error) {
+		req.log.error("Error al obtener productos", error)
+		return sendError(res, "Error al obtener productos", 500)
+	}
+}
+
+// Get a product by id
+
+export const getProductById = async (req, res) => {
+	const { id } = req.params
+	try {
+		const product = await Product.findByPk(id, {
 			include: [
 				{
 					model: ProductMaterial,
@@ -27,10 +41,14 @@ export const getAllProducts = async (req, res) => {
 				},
 			],
 		})
-		res.status(200).json(buildPagedResponse(rows, total, page, limit))
+
+		if (!product) {
+			return sendError(res, productMessages.NOT_FOUND, 404)
+		}
+		res.status(200).json(product)
 	} catch (error) {
-		req.log.error("Error al obtener productos", error)
-		return sendError(res, "Error al obtener productos", 500)
+		req.log.error("Error al obtener producto", error)
+		return sendError(res, "Error al obtener producto", 500)
 	}
 }
 
