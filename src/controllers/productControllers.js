@@ -13,7 +13,7 @@ export const getAllProducts = async (req, res) => {
 		const { count: total, rows } = await Product.findAndCountAll({
 			limit,
 			offset,
-			order: [["id", "DESC"]],
+			order: [["name", "ASC"]],
 		})
 		res.status(200).json(buildPagedResponse(rows, total, page, limit))
 	} catch (error) {
