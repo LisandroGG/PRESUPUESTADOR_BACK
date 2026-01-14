@@ -14,9 +14,14 @@ export const Product = sequelize.define(
 			allowNull: false,
 		},
 		description: {
-			type: DataTypes.STRING,
+			type: DataTypes.TEXT,
 			allowNull: false,
 		},
+		productionCost: {
+			type: DataTypes.DECIMAL(10, 2),
+			allowNull: false,
+			defaultValue: 0,
+		}
 	},
 	{
 		timestamps: false,

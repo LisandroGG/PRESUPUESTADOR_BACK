@@ -20,6 +20,7 @@ export const productMessages = {
 	INVALID_MATERIALS: "La lista de materiales es inválida",
 	INVALID_MATERIAL_QUANTITY: "El material debe incluir su cantidad",
 	DUPLICATE_PRODUCT: "Ya existe un producto con ese nombre",
+	INVALID_PRODUCTION_COST: "El costo de produccion debe ser numerico y mayor a 0."
 }
 
 export const materialMessages = {

@@ -5,6 +5,7 @@ import {
 	validateProductDescription,
 	validateProductMaterials,
 	validateProductName,
+	validateProductionCost
 } from "../validations/productValidations.js"
 
 export const validateProduct = (req, res, next) => {
@@ -35,5 +36,12 @@ export const validateProduct = (req, res, next) => {
 		}
 	}
 
+	// PRODUCTION COST
+	if (isCreate || req.body.productionCost !== undefined) {
+		if (!validateProductionCost(req.body.productionCost)) {
+			return sendError(res, productMessages.INVALID_PRODUCTION_COST, 400)
+		}
+	}
+	
 	next()
 }

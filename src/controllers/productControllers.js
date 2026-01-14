@@ -45,7 +45,15 @@ export const getProductById = async (req, res) => {
 		if (!product) {
 			return sendError(res, productMessages.NOT_FOUND, 404)
 		}
-		res.status(200).json(product)
+		const totalMaterialsCost = product.productMaterials.reduce(
+			(total, pm) => total + pm.quantity * Number(pm.material.cost),
+			0
+		)
+
+		res.status(200).json({
+			...product.toJSON(),
+			totalMaterialsCost: Number(totalMaterialsCost.toFixed(2)),
+		})
 	} catch (error) {
 		req.log.error("Error al obtener producto", error)
 		return sendError(res, "Error al obtener producto", 500)
@@ -55,7 +63,7 @@ export const getProductById = async (req, res) => {
 // Create a new product
 
 export const createProduct = async (req, res) => {
-	const { name, description, materials } = req.body
+	const { name, description, materials, productionCost } = req.body
 
 	try {
 		const existingProduct = await Product.findOne({
@@ -77,6 +85,11 @@ export const createProduct = async (req, res) => {
 					quantity: m.quantity,
 				})
 			}
+		}
+
+		if (productionCost) {
+			newProduct.productionCost = productionCost
+			await newProduct.save()
 		}
 
 		res.status(200).json({
@@ -111,7 +124,7 @@ export const deleteProduct = async (req, res) => {
 // Update a product by ID
 export const updateProduct = async (req, res) => {
 	const { id } = req.params
-	const { name, description, materials } = req.body
+	const { name, description, materials, productionCost } = req.body
 
 	try {
 		const product = await Product.findByPk(id, {
@@ -159,6 +172,10 @@ export const updateProduct = async (req, res) => {
 					})
 				}
 			}
+		}
+		if (productionCost) {
+			product.productionCost = productionCost
+			await product.save()
 		}
 		res.status(200).json({
 			message: "Producto actualizado exitosamente",
