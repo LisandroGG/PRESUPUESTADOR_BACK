@@ -50,9 +50,8 @@ export const validateProductMaterials = (materials) => {
 }
 
 export const validateProductionCost = (cost) => {
-	if (!cost) return true
+	if (cost === undefined || cost === null) return true
 
-	const value = parseFloat(cost)
-
-	return !Number.isNaN(value) && value > 0
+	const value = Number(cost)
+	return !Number.isNaN(value) && value >= 0
 }

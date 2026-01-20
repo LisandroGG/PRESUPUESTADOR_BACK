@@ -3,13 +3,13 @@ import { sendError } from "../helpers/response.js"
 
 import {
 	validateProductDescription,
+	validateProductionCost,
 	validateProductMaterials,
 	validateProductName,
-	validateProductionCost
 } from "../validations/productValidations.js"
 
 export const validateProduct = (req, res, next) => {
-	const { name, description, materials } = req.body
+	const { name, description, materials, productionCost } = req.body
 
 	const isCreate = req.method === "POST"
 
@@ -37,11 +37,11 @@ export const validateProduct = (req, res, next) => {
 	}
 
 	// PRODUCTION COST
-	if (isCreate || req.body.productionCost !== undefined) {
-		if (!validateProductionCost(req.body.productionCost)) {
+	if (isCreate || productionCost !== undefined) {
+		if (!validateProductionCost(productionCost)) {
 			return sendError(res, productMessages.INVALID_PRODUCTION_COST, 400)
 		}
 	}
-	
+
 	next()
 }

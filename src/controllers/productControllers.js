@@ -47,7 +47,7 @@ export const getProductById = async (req, res) => {
 		}
 		const totalMaterialsCost = product.productMaterials.reduce(
 			(total, pm) => total + pm.quantity * Number(pm.material.cost),
-			0
+			0,
 		)
 
 		res.status(200).json({
@@ -173,7 +173,7 @@ export const updateProduct = async (req, res) => {
 				}
 			}
 		}
-		if (productionCost) {
+		if (productionCost !== undefined) {
 			product.productionCost = productionCost
 			await product.save()
 		}
