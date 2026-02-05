@@ -17,6 +17,13 @@ export const getAllBudgets = async (req, res) => {
 			offset,
 			order: [["id", "DESC"]],
 			attributes: ["id", "description", "status"],
+			include: [
+				{
+					model: Client,
+					as: "client",
+					attributes: ["id", "name", "cuit"],
+				}
+			]
 		})
 		res.status(200).json(buildPagedResponse(rows, total, page, limit))
 	} catch (error) {
