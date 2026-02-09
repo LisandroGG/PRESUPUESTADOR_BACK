@@ -1,6 +1,6 @@
 import { productMessages } from "../helpers/messages.js"
 import { sendError } from "../helpers/response.js"
-
+import { validateMaterialExists } from "../validations/materialValidations.js"
 import {
 	validateProductDescription,
 	validateProductionCost,
@@ -8,7 +8,7 @@ import {
 	validateProductName,
 } from "../validations/productValidations.js"
 
-export const validateProduct = (req, res, next) => {
+export const validateProduct = async (req, res, next) => {
 	const { name, description, materials, productionCost } = req.body
 
 	const isCreate = req.method === "POST"
@@ -33,6 +33,13 @@ export const validateProduct = (req, res, next) => {
 
 		if (validation !== true) {
 			return sendError(res, productMessages[validation], 400)
+		}
+
+		for (const m of materials) {
+			const materialExist = await validateMaterialExists(m.materialId)
+			if (!materialExist) {
+				return sendError(res, productMessages.MATERIAL_NOT_FOUND, 404)
+			}
 		}
 	}
 

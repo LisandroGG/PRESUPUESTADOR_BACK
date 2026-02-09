@@ -22,6 +22,7 @@ export const productMessages = {
 	DUPLICATE_PRODUCT: "Ya existe un producto con ese nombre",
 	INVALID_PRODUCTION_COST:
 		"El costo de produccion debe ser numerico y mayor a 0.",
+	MATERIAL_NOT_FOUND: "Material no encontrado.",
 }
 
 export const materialMessages = {

@@ -15,9 +15,7 @@ export const validateBudgetDescription = (description) => {
 }
 
 export const validateBudgetItems = (items) => {
-	if (!Array.isArray(items) || items.length === 0) return "INVALID_ITEMS"
-
-	const productIds = new Set()
+	if (!Array.isArray(items)) return "INVALID_ITEMS"
 
 	for (const i of items) {
 		if (
@@ -39,12 +37,7 @@ export const validateBudgetItems = (items) => {
 		) {
 			return "INVALID_ITEMS_QUANTITY"
 		}
-
-		if (productIds.has(i.productId)) {
-			return "DUPLICATE"
-		}
-
-		productIds.add(i.productId)
 	}
+
 	return true
 }

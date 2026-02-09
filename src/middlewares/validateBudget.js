@@ -30,19 +30,11 @@ export const validateBudget = async (req, res, next) => {
 
 	// ITEMS
 
-	if (isCreate || items !== undefined) {
+	if (items !== undefined) {
 		const itemsValidation = validateBudgetItems(items)
 
 		if (itemsValidation !== true) {
-			if (itemsValidation === "DUPLICATE") {
-				return sendError(res, budgetMessages.DUPLICATE_ITEM, 400)
-			}
-
-			if (itemsValidation === "INVALID_ITEMS_QUANTITY") {
-				return sendError(res, budgetMessages.INVALID_ITEMS_QUANTITY, 400)
-			}
-
-			return sendError(res, budgetMessages.INVALID_ITEMS, 400)
+			return sendError(res, budgetMessages[itemsValidation], 400)
 		}
 
 		for (const item of items) {

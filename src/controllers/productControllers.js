@@ -63,7 +63,7 @@ export const getProductById = async (req, res) => {
 // Create a new product
 
 export const createProduct = async (req, res) => {
-	const { name, description, materials, productionCost } = req.body
+	const { name, description } = req.body
 
 	try {
 		const existingProduct = await Product.findOne({
@@ -76,21 +76,6 @@ export const createProduct = async (req, res) => {
 			name,
 			description,
 		})
-
-		if (materials && Array.isArray(materials)) {
-			for (const m of materials) {
-				await ProductMaterial.create({
-					productId: newProduct.id,
-					materialId: m.materialId,
-					quantity: m.quantity,
-				})
-			}
-		}
-
-		if (productionCost) {
-			newProduct.productionCost = productionCost
-			await newProduct.save()
-		}
 
 		res.status(200).json({
 			message: "Producto create exisotamente",

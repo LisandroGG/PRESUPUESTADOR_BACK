@@ -4,7 +4,6 @@ import { sendError } from "../helpers/response.js"
 import { BudgetItem } from "../models/budgetItems.js"
 import { Budget } from "../models/budgets.js"
 import { Client } from "../models/clients.js"
-import { Material } from "../models/materials.js"
 import { Payment } from "../models/payments.js"
 import { Product } from "../models/products.js"
 
@@ -22,8 +21,8 @@ export const getAllBudgets = async (req, res) => {
 					model: Client,
 					as: "client",
 					attributes: ["id", "name", "cuit"],
-				}
-			]
+				},
+			],
 		})
 		res.status(200).json(buildPagedResponse(rows, total, page, limit))
 	} catch (error) {
@@ -73,17 +72,7 @@ export const getBudgetById = async (req, res) => {
 						{
 							model: Product,
 							as: "product",
-							attributes: ["id", "name", "description"],
-							include: [
-								{
-									model: Material,
-									attributes: ["id", "name", "provider", "cost"],
-									as: "materials",
-									through: {
-										attributes: ["quantity"],
-									},
-								},
-							],
+							attributes: ["id", "name"],
 						},
 					],
 				},
@@ -107,37 +96,16 @@ export const getBudgetById = async (req, res) => {
 
 // Create a new budget
 export const createBudget = async (req, res) => {
-	const { clientId, items, description } = req.body
+	const { clientId, description } = req.body
 	try {
 		const newBudget = await Budget.create({
 			clientId,
 			description,
 		})
 
-		const budgetItems = items.map((item) => ({
-			budgetId: newBudget.id,
-			productId: item.productId,
-			quantity: item.quantity,
-		}))
-
-		await BudgetItem.bulkCreate(budgetItems)
-
-		const budgetWithItems = await Budget.findByPk(newBudget.id, {
-			attributes: ["id", "description"],
-			include: [
-				{ model: Client, as: "client", attributes: ["id", "name", "cuit"] },
-				{ model: BudgetItem, as: "items", attributes: ["id", "quantity"] },
-				{
-					model: Payment,
-					as: "payments",
-					attributes: ["id", "amount", "date", "method"],
-				},
-			],
-		})
-
 		res.status(200).json({
 			message: "Presupuesto creado exitosamente",
-			budget: budgetWithItems,
+			budget: newBudget,
 		})
 	} catch (error) {
 		req.log.error("Error al crear presupuesto", error)
@@ -162,6 +130,80 @@ export const deleteBudget = async (req, res) => {
 	} catch (error) {
 		req.log.error("Error al eliminar presupuesto", error)
 		return sendError(res, "Error al eliminar presupuesto", 500)
+	}
+}
+
+// Update a budget by ID
+
+export const updateBudget = async (req, res) => {
+	const { id } = req.params
+	const { description, items } = req.body
+
+	try {
+		const budget = await Budget.findByPk(id, {
+			include: [
+				{
+					model: BudgetItem,
+					as: "items",
+				},
+			],
+		})
+
+		if (!budget) {
+			return sendError(res, budgetMessages.NOT_FOUND, 404)
+		}
+
+		if (description !== undefined) {
+			budget.description = description
+			await budget.save()
+		}
+
+		if (items && Array.isArray(items)) {
+			const currentItems = budget.items
+
+			const currentProductIds = currentItems.map((item) => item.productId)
+			const newProductIds = items.map((i) => i.productId)
+
+			const toDelete = currentProductIds.filter(
+				(id) => !newProductIds.includes(id),
+			)
+
+			if (toDelete.length > 0) {
+				await BudgetItem.destroy({
+					where: {
+						budgetId: budget.id,
+						productId: toDelete,
+					},
+				})
+			}
+
+			for (const i of items) {
+				const existing = currentItems.find(
+					(item) => item.productId === i.productId,
+				)
+
+				if (existing) {
+					if (i.quantity !== undefined) {
+						existing.quantity = i.quantity
+						await existing.save()
+					}
+				} else {
+					await BudgetItem.create({
+						budgetId: budget.id,
+						productId: i.productId,
+						quantity: i.quantity ?? 1,
+					})
+				}
+			}
+		}
+
+		res.status(200).json({
+			message: "Presupuesto actualizado exitosamente",
+			budget: budget,
+		})
+	} catch (error) {
+		req.log.error("Error al actualizar presupuesto", error)
+		return sendError(res, "Error al actualizar presupuesto", 500)
 	}
 }
 

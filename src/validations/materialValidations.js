@@ -1,3 +1,12 @@
+import { Material } from "../models/materials.js"
+
+export const validateMaterialExists = async (id) => {
+	if (!id) return false
+
+	const material = await Material.findByPk(id)
+	return !!material
+}
+
 export const validateMaterialName = (name) => {
 	if (!name) return false
 
