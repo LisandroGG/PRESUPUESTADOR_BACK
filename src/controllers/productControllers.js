@@ -13,12 +13,24 @@ export const getAllProducts = async (req, res) => {
 		const { count: total, rows } = await Product.findAndCountAll({
 			limit,
 			offset,
-			order: [["name", "ASC"]],
+			order: [["id", "DESC"]],
 		})
 		res.status(200).json(buildPagedResponse(rows, total, page, limit))
 	} catch (error) {
 		req.log.error("Error al obtener productos", error)
 		return sendError(res, "Error al obtener productos", 500)
+	}
+}
+
+export const getAllProductsForSelect = async (req, res) => {
+	try {
+		const products = await Product.findAll({
+			order: [["id", "DESC"]],
+		})
+		return res.status(200).json(products)
+	} catch (error) {
+		req.log.error("Error al obtener productos para select:", error)
+		return sendError(res, "Error al obtener productos para select", 500)
 	}
 }
 

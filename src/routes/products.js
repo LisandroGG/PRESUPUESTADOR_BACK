@@ -3,6 +3,7 @@ import {
 	createProduct,
 	deleteProduct,
 	getAllProducts,
+	getAllProductsForSelect,
 	getProductById,
 	searchProducts,
 	updateProduct,
@@ -13,6 +14,7 @@ import { validateProduct } from "../middlewares/validateProduct.js"
 export const productsRouter = Router()
 
 productsRouter.get("/", authUser, getAllProducts)
+productsRouter.get("/select", authUser, getAllProductsForSelect)
 productsRouter.post("/", authUser, validateProduct, createProduct)
 productsRouter.put("/:id", authUser, validateProduct, updateProduct)
 productsRouter.get("/detail/:id", authUser, getProductById)

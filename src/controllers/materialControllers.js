@@ -22,6 +22,18 @@ export const getAllMaterials = async (req, res) => {
 	}
 }
 
+export const getAllMaterialsForSelect = async (req, res) => {
+	try {
+		const materials = await Material.findAll({
+			order: [["id", "DESC"]],
+		})
+		return res.status(200).json(materials)
+	} catch (error) {
+		req.log.error("Error al obtener materiales para select:", error)
+		return sendError(res, "Error al obtener materiales para select", 500)
+	}
+}
+
 // Create a new material
 export const createMaterial = async (req, res) => {
 	const { name, provider, cost } = req.body

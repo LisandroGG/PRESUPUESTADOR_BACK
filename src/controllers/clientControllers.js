@@ -22,6 +22,18 @@ export const getAllClients = async (req, res) => {
 	}
 }
 
+export const getAllClientsForSelect = async (req, res) => {
+	try {
+		const clients = await Client.findAll({
+			order: [["id", "DESC"]],
+		})
+		return res.status(200).json(clients)
+	} catch (error) {
+		req.log.error("Error al obtener clientes para select:", error)
+		return sendError(res, "Error al obtener clientes para select", 500)
+	}
+}
+
 // Create a new client
 export const createClient = async (req, res) => {
 	const { name, cuit } = req.body

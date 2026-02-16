@@ -3,6 +3,7 @@ import {
 	createClient,
 	deleteClient,
 	getAllClients,
+	getAllClientsForSelect,
 	searchClients,
 	updateClient,
 } from "../controllers/clientControllers.js"
@@ -12,6 +13,7 @@ import { validateClient } from "../middlewares/validateClient.js"
 export const clientsRouter = Router()
 
 clientsRouter.get("/", authUser, getAllClients)
+clientsRouter.get("/select", authUser, getAllClientsForSelect)
 clientsRouter.get("/search", authUser, searchClients)
 clientsRouter.post("/", authUser, validateClient, createClient)
 clientsRouter.delete("/:id", authUser, deleteClient)
