@@ -260,20 +260,14 @@ export const getBudgetPdf = async (req, res) => {
 			return res.status(404).json({ error: "Presupuesto no encontrado" })
 		}
 
-		// 🧾 Formateador ARS
-		const formatARS = (value) =>
-			new Intl.NumberFormat("es-AR", {
-				style: "currency",
-				currency: "ARS",
-			}).format(value)
-
-		// 🔹 Map items
 		const mappedItems = budget.items.map((item, index) => ({
 			item: index + 1,
 			description: item.product.name,
 			qty: item.quantity,
 		}))
+
 		const logo = getLogoBase64()
+
 		const templateData = {
 			logo,
 			number: budget.id,
@@ -291,7 +285,7 @@ export const getBudgetPdf = async (req, res) => {
 		const compiled = Handlebars.compile(htmlTemplate)
 		const html = compiled(templateData)
 
-		const browser = await puppeteer.launch({ headless: "new" })
+		const browser = await puppeteer.launch({ headless: "new", args: ["--no-sandbox", "--disable-setuid-sandbox"], })
 		const page = await browser.newPage()
 		await page.setContent(html, { waitUntil: "networkidle0" })
 
@@ -306,16 +300,18 @@ export const getBudgetPdf = async (req, res) => {
 			},
 		})
 
+		const clientName = budget.client?.name || budget.client?.cuit || "cliente"
+
 		await browser.close()
 
 		res.set({
 			"Content-Type": "application/pdf",
-			"Content-Disposition": `attachment; filename=Presupuesto #${id} - ${budget.client.name || budget.client.cuit}.pdf`,
+			"Content-Disposition": `attachment; filename=Presupuesto #${id} - ${clientName}.pdf`,
 		})
 
 		res.send(pdf)
 	} catch (error) {
-		console.error(error)
-		res.status(500).json({ error: "Error generando PDF" })
+		req.log.error("Error al generar PDF del presupuesto", error)
+		return sendError(res, "Error al generar PDF del presupuesto", 500)
 	}
 }
