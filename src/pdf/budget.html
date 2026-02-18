@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+
+<style>
+@page {
+  size: A4;
+  margin: 20mm;
+}
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 12px;
+  background: white;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td, th {
+  border: 1px solid #9a9a9a;
+  padding: 3px 6px;
+}
+
+
+.center { text-align: center; }
+.right { text-align: right; }
+.bold { font-weight: bold; }
+
+.green-bar {
+  background: #20805b;
+  color: white;
+  font-weight: bold;
+  text-align: center;
+}
+
+.brand {
+  color: #1f6f43;
+  font-weight: bold;
+  font-size: 16px;
+  font-style: italic;
+}
+
+.no-border {
+  border: none !important;
+}
+  
+ .red {
+  color: red;
+  font-weight: bold;
+}
+  
+  .green {
+    color: #20805b;
+    font-weight: bold;
+  }
+
+.logo {
+  text-align: center;
+}
+
+.logo img {
+  height: 90px;
+}
+
+tr { page-break-inside: avoid; }
+</style>
+</head>
+
+<body>
+
+<!-- BLOQUE SUPERIOR TIPO EXCEL -->
+<table class="sheet">
+    <!-- BARRA VERDE -->
+  <tr>
+    <td colspan="8" class="green-bar">
+    &nbsp;</td>
+  </tr>
+  <tr>
+    <!-- IZQUIERDA -->
+    <td colspan="5" class="center">
+      <div class="brand">Metalurgica Vacari</div>
+      <div>20-32477036-5</div>
+      <div>Pte. Alvear 736 - Leones - Córdoba</div>
+    </td>
+
+    <!-- LOGO DERECHA -->
+    <td colspan="3" class="logo">
+      <img src="{{logo}}" />
+    </td>
+  </tr>
+
+  <!-- BARRA VERDE -->
+  <tr>
+    <td colspan="8" class="green-bar">
+      Documento NO VALIDO como factura.
+    </td>
+  </tr>
+
+  <!-- FILA 1 -->
+  <tr>
+    <td class="bold">Presupuesto:</td>
+    <td colspan="3">{{number}}</td>
+
+    <td class="bold">Fecha</td>
+    <td colspan="3">{{date}}</td>
+  </tr>
+
+  <!-- FILA 2 -->
+  <tr>
+    <td class="bold">Cliente:</td>
+    <td colspan="3">{{client}}</td>
+
+    <td class="bold">Ciudad:</td>
+    <td colspan="3">{{city}}</td>
+  </tr>
+
+  <!-- FILA 3 -->
+  <tr>
+    <td class="bold">CUIT:</td>
+    <td colspan="3">{{cuit}}</td>
+
+    <td class="bold">Provincia:</td>
+    <td colspan="3">{{province}}</td>
+  </tr>
+</table>
+
+<!-- ITEMS -->
+<table class="section">
+  <thead>
+    <tr class="green-bar">
+      <th style="width: 60px;">ITEM</th>
+      <th>DESCRIPCIÓN</th>
+      <th style="width: 80px;">CANT.</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    {{#each items}}
+    <tr>
+      <td class="center">{{item}}</td>
+      <td>{{description}}</td>
+      <td class="center">{{qty}}</td>
+    </tr>
+    {{/each}}
+  </tbody>
+</table>
+
+<!-- OBSERVACIONES -->
+<table class="section">
+  <tr>
+    <td>
+      <b>Detalle:</b><br />
+      {{description}}
+    </td>
+  </tr>
+</table>
+
+<!-- TEXTO COMERCIAL -->
+<table class="section small">
+  <tr>
+    <td>
+      <div class="red center">
+        INCLUYE CERTIFICADO DE INSTALACION AVALADO POR CNTSV
+      </div>
+
+      <br />
+
+      <div class="red center">
+        Cotización dólar BNA vendedor al día del pago
+      </div>
+
+      <div class="red center">
+        Contado: 10% descuento
+      </div>
+
+      <div class="center">
+        Con valores: (AL DIA DE LA ORDEN DE COMPRA)
+      </div>
+
+      <br />
+
+      <div class="red center">
+        PRESUPUESTO SUJETO A MODIFICACIONES SIN PREVIO AVISO
+      </div>
+    </td>
+  </tr>
+</table>
+
+  <!-- TOTALES -->
+<table class="section">
+  <tr class="green-bar">
+    <td colspan="2" class="right">Precio final.</td>
+    <td style="width: 180px;" class="right">$ {{total}}</td>
+  </tr>
+
+  <tr class="green-bar">
+    <td colspan="2" class="right">IVA 10,5%</td>
+    <td class="right">$ {{iva}}</td>
+  </tr>
+
+  <tr class="green-bar">
+    <td colspan="2" class="right bold">Total-</td>
+    <td class="right bold">$ {{grandTotal}}</td>
+  </tr>
+</table>
+
+<!-- PIE LEGAL -->
+<table class="section">
+  <tr>
+    <td class="green center bold" style="font-size:14px;">
+      TALLER DE MODIFICACIÓN Y REPARACIÓN CON HOMOLOGACIÓN NACIONAL
+    </td>
+  </tr>
+
+  <tr>
+    <td class="green center">
+      <span class="bold">Representante legal:</span>
+      VACA ARIEL ALEJANDRO
+    </td>
+  </tr>
+
+  <tr>
+    <td class="center red">
+      Precios puestos en domicilio de fabricación.
+    </td>
+  </tr>
+</table>
+
+<!-- VALIDEZ -->
+<table class="section">
+  <tr>
+    <td class="center">Plazo de entrega: A convenir</td>
+  </tr>
+
+  <tr class="green-bar">
+    <td class="center">Validez de la oferta &nbsp; <b>7 DIAS</b></td>
+  </tr>
+</table>
+  
+</body>
+</html>
+

@@ -1,3 +1,8 @@
+import fs from "node:fs"
+import path from "node:path"
+import Handlebars from "handlebars"
+import puppeteer from "puppeteer"
+import { getLogoBase64 } from "../helpers/logoBase64.js"
 import { budgetMessages } from "../helpers/messages.js"
 import { buildPagedResponse, getPagination } from "../helpers/pagination.js"
 import { sendError } from "../helpers/response.js"
@@ -228,4 +233,89 @@ export const updateBudgetStatus = async (req, res) => {
 }
 
 // Get pdf of a budget
-export const getBudgetPdf = async (req, res) => {}
+export const getBudgetPdf = async (req, res) => {
+	try {
+		const { id } = req.params
+
+		const budget = await Budget.findByPk(id, {
+			attributes: ["id", "description", "status"],
+			include: [
+				{ model: Client, as: "client" },
+				{
+					model: BudgetItem,
+					as: "items",
+					attributes: ["id", "quantity"], // 👈 agregá price si existe
+					include: [
+						{
+							model: Product,
+							as: "product",
+							attributes: ["id", "name"],
+						},
+					],
+				},
+			],
+		})
+
+		if (!budget) {
+			return res.status(404).json({ error: "Presupuesto no encontrado" })
+		}
+
+		// 🧾 Formateador ARS
+		const formatARS = (value) =>
+			new Intl.NumberFormat("es-AR", {
+				style: "currency",
+				currency: "ARS",
+			}).format(value)
+
+		// 🔹 Map items
+		const mappedItems = budget.items.map((item, index) => ({
+			item: index + 1,
+			description: item.product.name,
+			qty: item.quantity,
+		}))
+		const logo = getLogoBase64()
+		const templateData = {
+			logo,
+			number: budget.id,
+			date: new Date().toLocaleDateString("es-AR"),
+			client: budget.client?.name || "",
+			cuit: budget.client?.cuit || "",
+			city: budget.client?.city || "",
+			description: budget.description,
+			items: mappedItems,
+		}
+
+		const templatePath = path.join(process.cwd(), "src/pdf/budget.html")
+
+		const htmlTemplate = fs.readFileSync(templatePath, "utf8")
+		const compiled = Handlebars.compile(htmlTemplate)
+		const html = compiled(templateData)
+
+		const browser = await puppeteer.launch({ headless: "new" })
+		const page = await browser.newPage()
+		await page.setContent(html, { waitUntil: "networkidle0" })
+
+		const pdf = await page.pdf({
+			format: "A4",
+			printBackground: true,
+			margin: {
+				top: "20mm",
+				bottom: "20mm",
+				left: "15mm",
+				right: "15mm",
+			},
+		})
+
+		await browser.close()
+
+		res.set({
+			"Content-Type": "application/pdf",
+			"Content-Disposition": `attachment; filename=Presupuesto #${id} - ${budget.client.name || budget.client.cuit}.pdf`,
+		})
+
+		res.send(pdf)
+	} catch (error) {
+		console.error(error)
+		res.status(500).json({ error: "Error generando PDF" })
+	}
+}
