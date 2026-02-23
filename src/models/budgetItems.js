@@ -22,6 +22,10 @@ export const BudgetItem = sequelize.define(
 			allowNull: false,
 			defaultValue: 1,
 		},
+		unitPrice: {
+			type: DataTypes.DECIMAL(10, 2),
+			allowNull: true,
+		},
 	},
 	{
 		timestamps: false,

@@ -2,6 +2,8 @@ import fs from "node:fs"
 import path from "node:path"
 import Handlebars from "handlebars"
 import puppeteer from "puppeteer"
+import { sequelize } from "../config/database.js"
+import { calculateProductCost } from "../helpers/calculateProductCost.js"
 import { getLogoBase64 } from "../helpers/logoBase64.js"
 import { budgetMessages } from "../helpers/messages.js"
 import { buildPagedResponse, getPagination } from "../helpers/pagination.js"
@@ -11,6 +13,16 @@ import { Budget } from "../models/budgets.js"
 import { Client } from "../models/clients.js"
 import { Payment } from "../models/payments.js"
 import { Product } from "../models/products.js"
+
+export const freezeBudgetPrices = async (budget, transaction) => {
+	for (const item of budget.items) {
+		if (item.unitPrice) continue // ya congelado
+
+		const price = await calculateProductCost(item.productId)
+		item.unitPrice = price
+		await item.save({ transaction })
+	}
+}
 
 // Get all budgets
 export const getAllBudgets = async (req, res) => {
@@ -216,17 +228,49 @@ export const updateBudget = async (req, res) => {
 export const updateBudgetStatus = async (req, res) => {
 	const { id } = req.params
 	const { status } = req.body
+
+	const t = await sequelize.transaction()
+
 	try {
-		const budget = await Budget.findByPk(id)
+		const budget = await Budget.findByPk(id, {
+			include: [
+				{
+					model: BudgetItem,
+					as: "items",
+				},
+			],
+			transaction: t,
+		})
+
 		if (!budget) {
+			await t.rollback()
 			return sendError(res, budgetMessages.NOT_FOUND, 404)
 		}
+
+		const validStatuses = ["pending", "approved", "paid"]
+		if (!validStatuses.includes(status)) {
+			await t.rollback()
+			return sendError(res, budgetMessages.INVALID_STATUS, 400)
+		}
+
+		const wasFrozen = budget.status === "approved" || budget.status === "paid"
+
+		const willFreeze = status === "approved" || status === "paid"
+
+		if (!wasFrozen && willFreeze) {
+			await freezeBudgetPrices(budget, t)
+		}
+
 		budget.status = status
-		await budget.save()
+		await budget.save({ transaction: t })
+
+		await t.commit()
+
 		res.status(200).json({
 			message: "Estado del presupuesto actualizado exitosamente",
 		})
 	} catch (error) {
+		await t.rollback()
 		req.log.error("Error al actualizar estado del presupuesto", error)
 		return sendError(res, "Error al actualizar estado del presupuesto", 500)
 	}
@@ -244,7 +288,7 @@ export const getBudgetPdf = async (req, res) => {
 				{
 					model: BudgetItem,
 					as: "items",
-					attributes: ["id", "quantity"], // 👈 agregá price si existe
+					attributes: ["id", "quantity", "productId", "unitPrice"],
 					include: [
 						{
 							model: Product,
@@ -260,11 +304,43 @@ export const getBudgetPdf = async (req, res) => {
 			return res.status(404).json({ error: "Presupuesto no encontrado" })
 		}
 
-		const mappedItems = budget.items.map((item, index) => ({
-			item: index + 1,
-			description: item.product.name,
-			qty: item.quantity,
-		}))
+		const isFrozen = budget.status === "approved" || budget.status === "paid"
+
+		// ---------------------------
+		// MAP ITEMS + CALC PRICES
+		// ---------------------------
+		let subtotal = 0
+
+		const mappedItems = await Promise.all(
+			budget.items.map(async (item, index) => {
+				let unitPrice
+
+				if (isFrozen && item.unitPrice) {
+					// usar snapshot
+					unitPrice = Number(item.unitPrice)
+				} else {
+					// calcular dinámico
+					unitPrice = await calculateProductCost(item.productId)
+				}
+
+				const total = unitPrice * item.quantity
+				subtotal += total
+
+				return {
+					item: index + 1,
+					description: item.product?.name || "Producto",
+					qty: item.quantity,
+					unitPrice: unitPrice.toFixed(2),
+					total: total.toFixed(2),
+				}
+			}),
+		)
+
+		// ---------------------------
+		// TAXES
+		// ---------------------------
+		const iva = subtotal * 0.105
+		const totalFinal = subtotal + iva
 
 		const logo = getLogoBase64()
 
@@ -277,15 +353,27 @@ export const getBudgetPdf = async (req, res) => {
 			city: budget.client?.city || "",
 			description: budget.description,
 			items: mappedItems,
+			total: subtotal.toFixed(2),
+			iva: iva.toFixed(2),
+			grandTotal: totalFinal.toFixed(2),
 		}
 
+		// ---------------------------
+		// GENERAR HTML
+		// ---------------------------
 		const templatePath = path.join(process.cwd(), "src/pdf/budget.html")
-
 		const htmlTemplate = fs.readFileSync(templatePath, "utf8")
 		const compiled = Handlebars.compile(htmlTemplate)
 		const html = compiled(templateData)
 
-		const browser = await puppeteer.launch({ headless: "new", args: ["--no-sandbox", "--disable-setuid-sandbox"], })
+		// ---------------------------
+		// GENERAR PDF
+		// ---------------------------
+		const browser = await puppeteer.launch({
+			headless: "new",
+			args: ["--no-sandbox", "--disable-setuid-sandbox"],
+		})
+
 		const page = await browser.newPage()
 		await page.setContent(html, { waitUntil: "networkidle0" })
 
@@ -300,9 +388,9 @@ export const getBudgetPdf = async (req, res) => {
 			},
 		})
 
-		const clientName = budget.client?.name || budget.client?.cuit || "cliente"
-
 		await browser.close()
+
+		const clientName = budget.client?.name || "cliente"
 
 		res.set({
 			"Content-Type": "application/pdf",

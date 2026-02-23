@@ -135,6 +135,7 @@ tr { page-break-inside: avoid; }
       <th style="width: 60px;">ITEM</th>
       <th>DESCRIPCIÓN</th>
       <th style="width: 80px;">CANT.</th>
+      <th style="width: 120px;">PRECIO UNIT.</th>
     </tr>
   </thead>
 
@@ -144,6 +145,7 @@ tr { page-break-inside: avoid; }
       <td class="center">{{item}}</td>
       <td>{{description}}</td>
       <td class="center">{{qty}}</td>
+      <td class="right">$ {{unitPrice}}</td>
     </tr>
     {{/each}}
   </tbody>
