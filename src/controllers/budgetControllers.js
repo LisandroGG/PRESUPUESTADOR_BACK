@@ -16,7 +16,7 @@ import { Product } from "../models/products.js"
 
 export const freezeBudgetPrices = async (budget, transaction) => {
 	for (const item of budget.items) {
-		if (item.unitPrice) continue // ya congelado
+		if (item.unitPrice) continue
 
 		const price = await calculateProductCost(item.productId)
 		item.unitPrice = price
@@ -306,9 +306,6 @@ export const getBudgetPdf = async (req, res) => {
 
 		const isFrozen = budget.status === "approved" || budget.status === "paid"
 
-		// ---------------------------
-		// MAP ITEMS + CALC PRICES
-		// ---------------------------
 		let subtotal = 0
 
 		const mappedItems = await Promise.all(
@@ -316,10 +313,8 @@ export const getBudgetPdf = async (req, res) => {
 				let unitPrice
 
 				if (isFrozen && item.unitPrice) {
-					// usar snapshot
 					unitPrice = Number(item.unitPrice)
 				} else {
-					// calcular dinámico
 					unitPrice = await calculateProductCost(item.productId)
 				}
 
@@ -336,9 +331,6 @@ export const getBudgetPdf = async (req, res) => {
 			}),
 		)
 
-		// ---------------------------
-		// TAXES
-		// ---------------------------
 		const iva = subtotal * 0.105
 		const totalFinal = subtotal + iva
 
@@ -358,17 +350,11 @@ export const getBudgetPdf = async (req, res) => {
 			grandTotal: totalFinal.toFixed(2),
 		}
 
-		// ---------------------------
-		// GENERAR HTML
-		// ---------------------------
 		const templatePath = path.join(process.cwd(), "src/pdf/budget.html")
 		const htmlTemplate = fs.readFileSync(templatePath, "utf8")
 		const compiled = Handlebars.compile(htmlTemplate)
 		const html = compiled(templateData)
 
-		// ---------------------------
-		// GENERAR PDF
-		// ---------------------------
 		const browser = await puppeteer.launch({
 			headless: "new",
 			args: ["--no-sandbox", "--disable-setuid-sandbox"],
