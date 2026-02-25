@@ -24,6 +24,28 @@ export const freezeBudgetPrices = async (budget, transaction) => {
 	}
 }
 
+let browserInstance
+let compiledTemplate
+
+export async function getBrowser() {
+	if (!browserInstance) {
+		browserInstance = await puppeteer.launch({
+			headless: "new",
+			args: ["--no-sandbox", "--disable-setuid-sandbox"],
+		})
+	}
+	return browserInstance
+}
+
+function getCompiledTemplate() {
+	if (!compiledTemplate) {
+		const templatePath = path.join(process.cwd(), "src/pdf/budget.html")
+		const htmlTemplate = fs.readFileSync(templatePath, "utf8")
+		compiledTemplate = Handlebars.compile(htmlTemplate)
+	}
+	return compiledTemplate
+}
+
 // Get all budgets
 export const getAllBudgets = async (req, res) => {
 	try {
@@ -278,6 +300,7 @@ export const updateBudgetStatus = async (req, res) => {
 
 // Get pdf of a budget
 export const getBudgetPdf = async (req, res) => {
+	let page
 	try {
 		const { id } = req.params
 
@@ -350,18 +373,10 @@ export const getBudgetPdf = async (req, res) => {
 			grandTotal: totalFinal.toFixed(2),
 		}
 
-		const templatePath = path.join(process.cwd(), "src/pdf/budget.html")
-		const htmlTemplate = fs.readFileSync(templatePath, "utf8")
-		const compiled = Handlebars.compile(htmlTemplate)
-		const html = compiled(templateData)
-
-		const browser = await puppeteer.launch({
-			headless: "new",
-			args: ["--no-sandbox", "--disable-setuid-sandbox"],
-		})
-
-		const page = await browser.newPage()
-		await page.setContent(html, { waitUntil: "networkidle0" })
+		const html = getCompiledTemplate()(templateData)
+		const browser = await getBrowser()
+		page = await browser.newPage()
+		await page.setContent(html, { waitUntil: "load" })
 
 		const pdf = await page.pdf({
 			format: "A4",
@@ -374,7 +389,7 @@ export const getBudgetPdf = async (req, res) => {
 			},
 		})
 
-		await browser.close()
+		await page.close()
 
 		const clientName = budget.client?.name || "cliente"
 
@@ -385,6 +400,7 @@ export const getBudgetPdf = async (req, res) => {
 
 		res.send(pdf)
 	} catch (error) {
+		if (page) await page.close().catch(() => {})
 		req.log.error("Error al generar PDF del presupuesto", error)
 		return sendError(res, "Error al generar PDF del presupuesto", 500)
 	}

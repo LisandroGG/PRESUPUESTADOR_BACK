@@ -9,6 +9,7 @@ import pinoHttp from "pino-http"
 import { sequelize } from "./src/config/database.js"
 import { mainRouter } from "./src/routes/index.js"
 import "./src/models/relationships.js"
+import { getBrowser } from "./src/controllers/budgetControllers.js"
 
 dotenv.config()
 
@@ -83,8 +84,16 @@ async function main() {
 	try {
 		await sequelize.sync({ force: false })
 
-		app.listen(PORT, () => {
+		const server = app.listen(PORT, async () => {
 			logger.info(`Server is listening on port ${PORT}`)
+
+			try {
+				logger.info("Precalentando motor PDF")
+				await getBrowser()
+				logger.info("Motor PDF listo")
+			} catch (err) {
+				logger.error("Error precalentando Puppeteer", err)
+			}
 		})
 
 		async function shutdown() {
