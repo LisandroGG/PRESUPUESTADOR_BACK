@@ -4,7 +4,6 @@ import {
 	deleteMaterial,
 	getAllMaterials,
 	getAllMaterialsForSelect,
-	searchMaterials,
 	updateMaterial,
 } from "../controllers/materialControllers.js"
 import { authUser } from "../middlewares/authUser.js"
@@ -17,4 +16,3 @@ materialsRouter.get("/select", authUser, getAllMaterialsForSelect)
 materialsRouter.post("/", authUser, validateMaterial, createMaterial)
 materialsRouter.put("/:id", authUser, validateMaterial, updateMaterial)
 materialsRouter.delete("/:id", authUser, deleteMaterial)
-materialsRouter.get("/search", authUser, searchMaterials)

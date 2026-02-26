@@ -7,9 +7,27 @@ import { Material } from "../models/materials.js"
 // Get all materials
 export const getAllMaterials = async (req, res) => {
 	try {
+		const { name, provider } = req.query
 		const { page, limit, offset } = getPagination(req.query, 12)
 
+		const conditions = []
+
+		if (name) {
+			conditions.push({
+				name: { [Op.iLike]: `%${name}%` },
+			})
+		}
+
+		if (provider) {
+			conditions.push({
+				provider: { [Op.iLike]: `%${provider}%` },
+			})
+		}
+
+		const whereClause = conditions.length > 0 ? { [Op.or]: conditions } : {}
+
 		const { count: total, rows } = await Material.findAndCountAll({
+			where: whereClause,
 			limit,
 			offset,
 			order: [["id", "DESC"]],
@@ -95,39 +113,5 @@ export const updateMaterial = async (req, res) => {
 	} catch (error) {
 		req.log.error("Error al actualizar material:", error)
 		return sendError(res, "Error al actualizar material", 500)
-	}
-}
-
-// Search materials by name or provider
-export const searchMaterials = async (req, res) => {
-	try {
-		const { name, provider } = req.query
-
-		const { page, limit, offset } = getPagination(req.query, 9)
-
-		const conditions = []
-		if (name) {
-			conditions.push({
-				name: { [Op.iLike]: `%${name}%` },
-			})
-		}
-		if (provider) {
-			conditions.push({
-				provider: { [Op.iLike]: `%${provider}%` },
-			})
-		}
-
-		const whereClause = conditions.length > 0 ? { [Op.and]: conditions } : {}
-
-		const { count: total, rows } = await Material.findAndCountAll({
-			where: whereClause,
-			limit,
-			offset,
-			order: [["id", "DESC"]],
-		})
-		res.status(200).json(buildPagedResponse(rows, total, page, limit))
-	} catch (error) {
-		req.log.error("Error al buscar materiales:", error)
-		return sendError(res, "Error al buscar materiales", 500)
 	}
 }

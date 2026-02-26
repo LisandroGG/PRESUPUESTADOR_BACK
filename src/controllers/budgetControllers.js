@@ -49,8 +49,21 @@ function getCompiledTemplate() {
 // Get all budgets
 export const getAllBudgets = async (req, res) => {
 	try {
+		const { clientId, status } = req.query
 		const { page, limit, offset } = getPagination(req.query, 9)
+
+		const where = {}
+		const clientWhere = {}
+
+		if (status) {
+			where.status = status
+		}
+
+		if (clientId) {
+			clientWhere.id = clientId
+		}
 		const { count: total, rows } = await Budget.findAndCountAll({
+			where,
 			limit,
 			offset,
 			order: [["id", "DESC"]],
@@ -60,35 +73,15 @@ export const getAllBudgets = async (req, res) => {
 					model: Client,
 					as: "client",
 					attributes: ["id", "name", "cuit"],
+					...(clientId && { where: clientWhere }),
 				},
 			],
+			distinct: true,
 		})
 		res.status(200).json(buildPagedResponse(rows, total, page, limit))
 	} catch (error) {
 		req.log.error("Error al obtener presupuestos", error)
 		return sendError(res, "Error al obtener presupuestos", 500)
-	}
-}
-
-// Get a budget by client ID
-export const getBudgetByClientId = async (req, res) => {
-	try {
-		const { clientId } = req.params
-		const { page, limit, offset } = getPagination(req.query, 9)
-		const { count: total, rows } = await Budget.findAndCountAll({
-			where: { clientId },
-			limit,
-			offset,
-			attributes: ["id", "description", "status"],
-		})
-
-		if (total === 0) {
-			return sendError(res, budgetMessages.NOT_FOUND, 404)
-		}
-		res.status(200).json(buildPagedResponse(rows, total, page, limit))
-	} catch (error) {
-		req.log.error("Error al obtener presupuesto del cliente", error)
-		return sendError(res, "Error al obtener presupuesto del cliente", 500)
 	}
 }
 

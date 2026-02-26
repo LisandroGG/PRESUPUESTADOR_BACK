@@ -9,8 +9,21 @@ import { Product } from "../models/products.js"
 // Get all products
 export const getAllProducts = async (req, res) => {
 	try {
+		const { name } = req.query
 		const { page, limit, offset } = getPagination(req.query, 9)
+
+		const conditions = []
+
+		if (name) {
+			conditions.push({
+				name: { [Op.iLike]: `%${name}%` },
+			})
+		}
+
+		const whereClause = conditions.length > 0 ? { [Op.or]: conditions } : {}
+
 		const { count: total, rows } = await Product.findAndCountAll({
+			where: whereClause,
 			limit,
 			offset,
 			order: [["id", "DESC"]],
@@ -181,34 +194,5 @@ export const updateProduct = async (req, res) => {
 	} catch (error) {
 		req.log.error("Error al actualizar producto:", error)
 		return sendError(res, "Error al actualizar producto", 500)
-	}
-}
-
-// Search products by name
-export const searchProducts = async (req, res) => {
-	try {
-		const { name } = req.query
-
-		const { page, limit, offset } = getPagination(req.query, 9)
-
-		const conditions = []
-		if (name) {
-			conditions.push({
-				name: { [Op.iLike]: `%${name}%` },
-			})
-		}
-
-		const whereClause = conditions.length > 0 ? { [Op.and]: conditions } : {}
-
-		const { count: total, rows } = await Product.findAndCountAll({
-			where: whereClause,
-			limit,
-			offset,
-			order: [["id", "DESC"]],
-		})
-		res.status(200).json(buildPagedResponse(rows, total, page, limit))
-	} catch (error) {
-		req.log.error("Error al buscar productos", error)
-		return sendError(res, "Error al buscar productos", 500)
 	}
 }

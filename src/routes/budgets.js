@@ -3,7 +3,6 @@ import {
 	createBudget,
 	deleteBudget,
 	getAllBudgets,
-	getBudgetByClientId,
 	getBudgetById,
 	getBudgetPdf,
 	updateBudget,
@@ -18,7 +17,6 @@ budgetsRouter.get("/", authUser, getAllBudgets)
 budgetsRouter.post("/", authUser, validateBudget, createBudget)
 budgetsRouter.put("/:id", authUser, validateBudget, updateBudget)
 budgetsRouter.put("/status/:id", authUser, validateBudget, updateBudgetStatus)
-budgetsRouter.get("/client/:clientId", authUser, getBudgetByClientId)
 budgetsRouter.get("/detail/:id", authUser, getBudgetById)
 budgetsRouter.get("/pdf/:id", authUser, getBudgetPdf)
 budgetsRouter.delete("/:id", authUser, deleteBudget)

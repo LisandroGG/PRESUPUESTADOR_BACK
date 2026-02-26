@@ -7,41 +7,38 @@ import { Client } from "../models/clients.js"
 // Get all clients
 export const getAllClients = async (req, res) => {
 	try {
-		const { name, cuit } = req.query;
-		const { page, limit, offset } = getPagination(req.query, 12);
+		const { name, cuit } = req.query
+		const { page, limit, offset } = getPagination(req.query, 12)
 
-		const conditions = [];
+		const conditions = []
 
 		if (name) {
 			conditions.push({
 				name: { [Op.iLike]: `%${name}%` },
-			});
+			})
 		}
 
 		if (cuit) {
 			conditions.push({
 				cuit: { [Op.iLike]: `%${cuit}%` },
-			});
+			})
 		}
 
-		const whereClause =
-			conditions.length > 0 ? { [Op.or]: conditions } : {};
+		const whereClause = conditions.length > 0 ? { [Op.or]: conditions } : {}
 
 		const { count: total, rows } = await Client.findAndCountAll({
 			where: whereClause,
 			limit,
 			offset,
 			order: [["id", "DESC"]],
-		});
+		})
 
-		return res
-			.status(200)
-			.json(buildPagedResponse(rows, total, page, limit));
+		return res.status(200).json(buildPagedResponse(rows, total, page, limit))
 	} catch (error) {
-		req.log.error("Error al obtener clientes:", error);
-		return sendError(res, "Error al obtener clientes", 500);
+		req.log.error("Error al obtener clientes:", error)
+		return sendError(res, "Error al obtener clientes", 500)
 	}
-};
+}
 
 export const getAllClientsForSelect = async (req, res) => {
 	try {
@@ -61,10 +58,7 @@ export const createClient = async (req, res) => {
 	try {
 		const existingClient = await Client.findOne({
 			where: {
-				[Op.or]: [
-					{ name },
-					{ cuit }
-				],
+				[Op.or]: [{ name }, { cuit }],
 			},
 		})
 		if (existingClient) {
@@ -110,10 +104,7 @@ export const updateClient = async (req, res) => {
 
 		const existingClient = await Client.findOne({
 			where: {
-				[Op.or]: [
-					{ name },
-					{ cuit }
-				],
+				[Op.or]: [{ name }, { cuit }],
 			},
 		})
 		if (existingClient) {
