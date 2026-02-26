@@ -11,11 +11,11 @@ export const Client = sequelize.define(
 		},
 		name: {
 			type: DataTypes.STRING,
-			allowNull: true,
+			allowNull: false,
 		},
 		cuit: {
 			type: DataTypes.STRING,
-			allowNull: true,
+			allowNull: false,
 			unique: true,
 		},
 	},
