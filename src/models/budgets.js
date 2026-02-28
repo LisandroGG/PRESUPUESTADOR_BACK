@@ -10,7 +10,7 @@ export const Budget = sequelize.define(
 			autoIncrement: true,
 		},
 		description: {
-			type: DataTypes.STRING,
+			type: DataTypes.TEXT,
 			allowNull: false,
 		},
 		status: {
