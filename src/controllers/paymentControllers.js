@@ -1,6 +1,8 @@
+import { sequelize } from "../config/database.js"
 import { paymentMessages } from "../helpers/messages.js"
 import { buildPagedResponse, getPagination } from "../helpers/pagination.js"
 import { sendError } from "../helpers/response.js"
+import { Budget } from "../models/budgets.js"
 import { Payment } from "../models/payments.js"
 
 // Get all payments with ID badget
@@ -27,19 +29,66 @@ export const getAllPaymentsFromBadget = async (req, res) => {
 // Create a new payment
 export const createPayment = async (req, res) => {
 	const { amount, date, method, budgetId } = req.body
+
+	const t = await sequelize.transaction()
+
 	try {
-		const newPayment = await Payment.create({
-			amount,
-			date,
-			method,
-			budgetId,
+		const budget = await Budget.findByPk(budgetId, {
+			transaction: t,
+			lock: t.LOCK.UPDATE,
 		})
+
+		if (!budget) {
+			await t.rollback()
+			return sendError(res, "Presupuesto no encontrado", 404)
+		}
+
+		if (budget.status === "pending") {
+			await t.rollback()
+			return sendError(res, "Debe aprobar el presupuesto primero", 400)
+		}
+
+		if (!budget.totalAmount) {
+			await t.rollback()
+			return sendError(res, "Presupuesto sin total congelado", 400)
+		}
+
+		const payment = await Payment.create(
+			{ amount, date, method, budgetId },
+			{ transaction: t },
+		)
+
+		const totalPaid =
+			(await Payment.sum("amount", {
+				where: { budgetId },
+				transaction: t,
+			})) || 0
+
+		const totalBudget = Number(budget.totalAmount)
+
+		// 🚫 evitar sobrepago
+		if (totalPaid > totalBudget) {
+			await t.rollback()
+			return sendError(res, "El pago excede el total", 400)
+		}
+
+		// 🧾 auto paid
+		if (totalPaid >= totalBudget) {
+			budget.status = "paid"
+			await budget.save({ transaction: t })
+		}
+
+		await t.commit()
+
 		res.status(200).json({
-			message: "Pago creado exitosamente",
-			payment: newPayment,
+			message: "Pago registrado",
+			total: totalBudget,
+			paid: totalPaid,
+			remaining: Math.max(0, totalBudget - totalPaid),
 		})
 	} catch (error) {
-		req.log.error("Errora al crear pago", error)
+		await t.rollback()
+		req.log.error("Error al crear pago", error)
 		return sendError(res, "Error al crear pago", 500)
 	}
 }

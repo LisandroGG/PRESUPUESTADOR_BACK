@@ -19,6 +19,10 @@ export const Budget = sequelize.define(
 			defaultValue: "pending",
 			options: ["pending", "approved", "paid"],
 		},
+		totalAmount: {
+			type: DataTypes.DECIMAL(15, 2),
+			allowNull: true,
+		},
 	},
 	{
 		timestamps: false,

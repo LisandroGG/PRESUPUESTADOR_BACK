@@ -14,14 +14,26 @@ import { Client } from "../models/clients.js"
 import { Payment } from "../models/payments.js"
 import { Product } from "../models/products.js"
 
-export const freezeBudgetPrices = async (budget, transaction) => {
-	for (const item of budget.items) {
-		if (item.unitPrice) continue
+export const freezeBudgetAndSetTotal = async (budget, transaction) => {
+	let subtotal = 0
 
-		const price = await calculateProductCost(item.productId)
-		item.unitPrice = price
-		await item.save({ transaction })
+	for (const item of budget.items) {
+		if (!item.unitPrice) {
+			const price = await calculateProductCost(item.productId)
+			item.unitPrice = price
+			await item.save({ transaction })
+		}
+
+		subtotal += Number(item.unitPrice) * item.quantity
 	}
+
+	const iva = subtotal * 0.105
+	const total = subtotal + iva
+
+	budget.totalAmount = total
+	await budget.save({ transaction })
+
+	return total
 }
 
 let browserInstance
@@ -90,7 +102,7 @@ export const getBudgetById = async (req, res) => {
 	const { id } = req.params
 	try {
 		const budget = await Budget.findByPk(id, {
-			attributes: ["id", "description", "status"],
+			attributes: ["id", "description", "status", "totalAmount"],
 			include: [
 				{
 					model: Client,
@@ -119,7 +131,19 @@ export const getBudgetById = async (req, res) => {
 		if (!budget) {
 			return sendError(res, budgetMessages.NOT_FOUND, 404)
 		}
-		res.status(200).json(budget)
+		const paid =
+			(await Payment.sum("amount", {
+				where: { budgetId: budget.id },
+			})) || 0
+
+		res.status(200).json({
+			...budget.toJSON(),
+			totals: {
+				total: budget.totalAmount || 0,
+				paid,
+				remaining: Math.max(0, Number(budget.totalAmount || 0) - paid),
+			},
+		})
 	} catch (error) {
 		req.log.error("Error al obtener presupuesto", error)
 		return sendError(res, "Error al obtener presupuesto", 500)
@@ -248,12 +272,7 @@ export const updateBudgetStatus = async (req, res) => {
 
 	try {
 		const budget = await Budget.findByPk(id, {
-			include: [
-				{
-					model: BudgetItem,
-					as: "items",
-				},
-			],
+			include: [{ model: BudgetItem, as: "items" }],
 			transaction: t,
 		})
 
@@ -262,18 +281,32 @@ export const updateBudgetStatus = async (req, res) => {
 			return sendError(res, budgetMessages.NOT_FOUND, 404)
 		}
 
-		const validStatuses = ["pending", "approved", "paid"]
+		const validStatuses = ["pending", "approved"]
 		if (!validStatuses.includes(status)) {
 			await t.rollback()
-			return sendError(res, budgetMessages.INVALID_STATUS, 400)
+			return sendError(res, "Estado inválido", 400)
 		}
 
-		const wasFrozen = budget.status === "approved" || budget.status === "paid"
+		const currentStatus = budget.status
 
-		const willFreeze = status === "approved" || status === "paid"
+		const allowedTransitions = {
+			pending: ["approved"],
+			approved: [],
+			paid: [],
+		}
 
-		if (!wasFrozen && willFreeze) {
-			await freezeBudgetPrices(budget, t)
+		if (!allowedTransitions[currentStatus].includes(status)) {
+			await t.rollback()
+			return sendError(
+				res,
+				`No se puede cambiar de ${currentStatus} a ${status}`,
+				400,
+			)
+		}
+
+		// 🔒 Congelar al aprobar
+		if (status === "approved" && !budget.totalAmount) {
+			await freezeBudgetAndSetTotal(budget, t)
 		}
 
 		budget.status = status
@@ -282,12 +315,12 @@ export const updateBudgetStatus = async (req, res) => {
 		await t.commit()
 
 		res.status(200).json({
-			message: "Estado del presupuesto actualizado exitosamente",
+			message: "Estado actualizado correctamente",
 		})
 	} catch (error) {
 		await t.rollback()
-		req.log.error("Error al actualizar estado del presupuesto", error)
-		return sendError(res, "Error al actualizar estado del presupuesto", 500)
+		req.log.error("Error al actualizar estado", error)
+		return sendError(res, "Error al actualizar estado", 500)
 	}
 }
 
