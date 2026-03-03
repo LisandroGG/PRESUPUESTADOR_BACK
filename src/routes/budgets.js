@@ -5,6 +5,7 @@ import {
 	getAllBudgets,
 	getBudgetById,
 	getBudgetPdf,
+	getRecentBudgets,
 	updateBudget,
 	updateBudgetStatus,
 } from "../controllers/budgetControllers.js"
@@ -14,6 +15,7 @@ import { validateBudget } from "../middlewares/validateBudget.js"
 export const budgetsRouter = Router()
 
 budgetsRouter.get("/", authUser, getAllBudgets)
+budgetsRouter.post("/recent", authUser, getRecentBudgets)
 budgetsRouter.post("/", authUser, validateBudget, createBudget)
 budgetsRouter.put("/:id", authUser, validateBudget, updateBudget)
 budgetsRouter.put("/status/:id", authUser, validateBudget, updateBudgetStatus)

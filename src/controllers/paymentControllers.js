@@ -66,13 +66,11 @@ export const createPayment = async (req, res) => {
 
 		const totalBudget = Number(budget.totalAmount)
 
-		// 🚫 evitar sobrepago
 		if (totalPaid > totalBudget) {
 			await t.rollback()
 			return sendError(res, "El pago excede el total", 400)
 		}
 
-		// 🧾 auto paid
 		if (totalPaid >= totalBudget) {
 			budget.status = "paid"
 			await budget.save({ transaction: t })

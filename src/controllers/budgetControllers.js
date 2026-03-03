@@ -97,6 +97,30 @@ export const getAllBudgets = async (req, res) => {
 	}
 }
 
+export const getRecentBudgets = async (req, res) => {
+	try {
+		const { ids } = req.body
+		const budgets = await Budget.findAll({
+			where: {
+				id: ids,
+			},
+			attributes: ["id", "status", "totalAmount"],
+			include: [
+				{
+					model: Client,
+					as: "client",
+					attributes: ["id", "name"],
+				},
+			],
+		})
+		res.json(budgets)
+	} catch (error) {
+		console.log("Error", error)
+		req.log.error("Error al obtener presupuestos recientes", error)
+		return sendError(res, "Error al obtener presupuesto recientes", 500)
+	}
+}
+
 // Get a budget by ID
 export const getBudgetById = async (req, res) => {
 	const { id } = req.params
@@ -190,7 +214,6 @@ export const deleteBudget = async (req, res) => {
 }
 
 // Update a budget by ID
-
 export const updateBudget = async (req, res) => {
 	const { id } = req.params
 	const { description, items } = req.body
@@ -304,7 +327,6 @@ export const updateBudgetStatus = async (req, res) => {
 			)
 		}
 
-		// 🔒 Congelar al aprobar
 		if (status === "approved" && !budget.totalAmount) {
 			await freezeBudgetAndSetTotal(budget, t)
 		}
