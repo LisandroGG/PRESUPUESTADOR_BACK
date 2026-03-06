@@ -10,7 +10,7 @@ import { validateClient } from "../middlewares/validateClient.js"
 
 export const clientsRouter = Router()
 
-clientsRouter.get("/",  getAllClients)
+clientsRouter.get("/", getAllClients)
 clientsRouter.get("/select", getAllClientsForSelect)
 clientsRouter.post("/", validateClient, createClient)
 clientsRouter.delete("/:id", deleteClient)
