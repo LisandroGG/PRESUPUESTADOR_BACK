@@ -1,5 +1,6 @@
 import fs from "node:fs"
 import path from "node:path"
+import { fileURLToPath } from "node:url"
 import Handlebars from "handlebars"
 import puppeteer from "puppeteer"
 import { sequelize } from "../config/database.js"
@@ -13,6 +14,9 @@ import { Budget } from "../models/budgets.js"
 import { Client } from "../models/clients.js"
 import { Payment } from "../models/payments.js"
 import { Product } from "../models/products.js"
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
 export const freezeBudgetAndSetTotal = async (budget, transaction) => {
 	let subtotal = 0
@@ -51,7 +55,7 @@ export async function getBrowser() {
 
 function getCompiledTemplate() {
 	if (!compiledTemplate) {
-		const templatePath = path.join(process.cwd(), "src/pdf/budget.html")
+		const templatePath = path.join(__dirname, "../pdf/budget.html")
 		const htmlTemplate = fs.readFileSync(templatePath, "utf8")
 		compiledTemplate = Handlebars.compile(htmlTemplate)
 	}
@@ -450,6 +454,6 @@ export const getBudgetPdf = async (req, res) => {
 	} catch (error) {
 		if (page) await page.close().catch(() => {})
 		req.log.error("Error al generar PDF del presupuesto", error)
-		return sendError(res, "Error al generar PDF del presupuesto", 500)
+		return sendError(res, error, 500)
 	}
 }

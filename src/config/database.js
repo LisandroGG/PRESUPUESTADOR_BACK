@@ -1,8 +1,14 @@
+import path from "node:path"
+import { fileURLToPath } from "node:url"
 import dotenv from "dotenv"
 import pg from "pg"
 import { Sequelize } from "sequelize"
 
-dotenv.config()
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+
+dotenv.config({
+	path: path.resolve(__dirname, "../../.env"),
+})
 
 const { DB_NAME, DB_USER, DB_PASSWORD, DB_HOST, DB_URL, API_STATUS } =
 	process.env

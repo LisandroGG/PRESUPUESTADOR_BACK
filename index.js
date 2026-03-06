@@ -10,8 +10,14 @@ import { sequelize } from "./src/config/database.js"
 import { mainRouter } from "./src/routes/index.js"
 import "./src/models/relationships.js"
 import { getBrowser } from "./src/controllers/budgetControllers.js"
+import path from "node:path"
+import { fileURLToPath } from "node:url"
 
-dotenv.config()
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+
+dotenv.config({
+  path: path.resolve(__dirname, "../../.env")
+})
 
 const { PORT, API_STATUS, LOCALHOST, DEPLOY } = process.env
 
