@@ -10,24 +10,11 @@ dotenv.config({
 	path: path.resolve(__dirname, "../../.env"),
 })
 
-const { DB_NAME, DB_USER, DB_PASSWORD, DB_HOST, DB_URL, API_STATUS } =
+const { DB_NAME, DB_USER, DB_PASSWORD, DB_HOST } =
 	process.env
 
 export const sequelize =
-	API_STATUS === "production"
-		? new Sequelize(DB_URL, {
-				dialect: "postgres",
-				protocol: "postgres",
-				dialectModule: pg,
-				logging: false,
-				dialectOptions: {
-					ssl: {
-						require: true,
-						rejectUnauthorized: false,
-					},
-				},
-			})
-		: new Sequelize(DB_NAME, DB_USER, DB_PASSWORD, {
+new Sequelize(DB_NAME, DB_USER, DB_PASSWORD, {
 				host: DB_HOST,
 				dialect: "postgres",
 				protocol: "postgres",

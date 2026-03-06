@@ -4,11 +4,10 @@ import {
 	deletePayment,
 	getAllPaymentsFromBadget,
 } from "../controllers/paymentControllers.js"
-import { authUser } from "../middlewares/authUser.js"
 import { validatePayment } from "../middlewares/validatePayment.js"
 
 export const paymentsRouter = Router()
 
-paymentsRouter.get("/:budgetId", authUser, getAllPaymentsFromBadget)
-paymentsRouter.post("/", authUser, validatePayment, createPayment)
-paymentsRouter.delete("/:id", authUser, deletePayment)
+paymentsRouter.get("/:budgetId", getAllPaymentsFromBadget)
+paymentsRouter.post("/", validatePayment, createPayment)
+paymentsRouter.delete("/:id", deletePayment)
