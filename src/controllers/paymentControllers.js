@@ -67,7 +67,7 @@ export const createPayment = async (req, res) => {
 		const totalPaid = Number(totalPaidRaw.toFixed(2))
 
 		const totalBudget = Number(Number(budget.totalAmount).toFixed(2))
-		
+
 		const remaining = Number(Math.max(0, totalBudget - totalPaid).toFixed(2))
 
 		console.log("TOTAL DEL PAGO", totalPaid)

@@ -14,13 +14,13 @@ export const getAllClients = async (req, res) => {
 
 		if (name) {
 			conditions.push({
-				name: { [Op.iLike]: `%${name}%` },
+				name: { [Op.like]: `%${name}%` },
 			})
 		}
 
 		if (cuit) {
 			conditions.push({
-				cuit: { [Op.iLike]: `%${cuit}%` },
+				cuit: { [Op.like]: `%${cuit}%` },
 			})
 		}
 
