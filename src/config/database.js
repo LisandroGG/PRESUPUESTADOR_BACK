@@ -10,15 +10,12 @@ dotenv.config({
 	path: path.resolve(__dirname, "../../.env"),
 })
 
-const { DB_NAME, DB_USER, DB_PASSWORD, DB_HOST } = process.env
+const storagePath = path.resolve(__dirname, "../../database/database.sqlite")
 
-export const sequelize = new Sequelize(DB_NAME, DB_USER, DB_PASSWORD, {
-	host: DB_HOST,
-	dialect: "postgres",
-	protocol: "postgres",
-	dialectModule: pg,
+export const sequelize = new Sequelize({
+	dialect: "sqlite",
+	storage: storagePath,
 	logging: false,
-	dialectOptions: {},
 })
 
 ;(async () => {
