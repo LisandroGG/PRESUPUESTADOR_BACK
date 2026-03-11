@@ -33,8 +33,9 @@ export const freezeBudgetAndSetTotal = async (budget, transaction) => {
 
 	const iva = subtotal * 0.105
 	const total = subtotal + iva
+	const roundedTotal = Number(total.toFixed(2))
 
-	budget.totalAmount = total
+	budget.totalAmount = roundedTotal
 	await budget.save({ transaction })
 
 	return total
@@ -164,12 +165,16 @@ export const getBudgetById = async (req, res) => {
 				where: { budgetId: budget.id },
 			})) || 0
 
+		const total = Number(Number(budget.totalAmount || 0).toFixed(2))
+		const paidRounded = Number(Number(paid || 0).toFixed(2))
+		const remaining = Number(Math.max(0, total - paidRounded).toFixed(2))
+
 		res.status(200).json({
 			...budget.toJSON(),
 			totals: {
-				total: budget.totalAmount || 0,
-				paid,
-				remaining: Math.max(0, Number(budget.totalAmount || 0) - paid),
+				total,
+				paid: paidRounded,
+				remaining,
 			},
 		})
 	} catch (error) {
