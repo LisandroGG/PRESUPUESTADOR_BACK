@@ -20,6 +20,7 @@ pnpm-debug.log*
 # Database files
 *.sqlite
 *.sqlite-journal
+database/database.sqlite
 pgdata/
 
 # Build files

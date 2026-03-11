@@ -14,13 +14,13 @@ export const getAllMaterials = async (req, res) => {
 
 		if (name) {
 			conditions.push({
-				name: { [Op.iLike]: `%${name}%` },
+				name: { [Op.like]: `%${name}%` },
 			})
 		}
 
 		if (provider) {
 			conditions.push({
-				provider: { [Op.iLike]: `%${provider}%` },
+				provider: { [Op.like]: `%${provider}%` },
 			})
 		}
 

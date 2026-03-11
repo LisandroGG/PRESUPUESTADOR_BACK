@@ -16,7 +16,7 @@ export const getAllProducts = async (req, res) => {
 
 		if (name) {
 			conditions.push({
-				name: { [Op.iLike]: `%${name}%` },
+				name: { [Op.like]: `%${name}%` },
 			})
 		}
 

@@ -19,7 +19,7 @@ dotenv.config({
   path: path.resolve(__dirname, "../../.env")
 })
 
-const { PORT, API_STATUS, LOCALHOST, DEPLOY } = process.env
+const { PORT } = process.env
 
 const app = express()
 
@@ -69,11 +69,9 @@ app.use(
 	}),
 )
 
-const allowedOrigins = API_STATUS === "production" ? [DEPLOY] : [LOCALHOST]
-
 app.use(
 	cors({
-		origin: allowedOrigins,
+		origin: true,
 		credentials: true,
 	}),
 )

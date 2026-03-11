@@ -58,13 +58,21 @@ export const createPayment = async (req, res) => {
 			{ transaction: t },
 		)
 
-		const totalPaid =
+		const totalPaidRaw =
 			(await Payment.sum("amount", {
 				where: { budgetId },
 				transaction: t,
 			})) || 0
 
-		const totalBudget = Number(budget.totalAmount)
+		const totalPaid = Number(totalPaidRaw.toFixed(2))
+
+		const totalBudget = Number(Number(budget.totalAmount).toFixed(2))
+
+		const remaining = Number(Math.max(0, totalBudget - totalPaid).toFixed(2))
+
+		console.log("TOTAL DEL PAGO", totalPaid)
+		console.log("TOTAL A PAGAR", totalBudget)
+		console.log("RESTANTE", remaining)
 
 		if (totalPaid > totalBudget) {
 			await t.rollback()
@@ -82,7 +90,7 @@ export const createPayment = async (req, res) => {
 			message: "Pago registrado",
 			total: totalBudget,
 			paid: totalPaid,
-			remaining: Math.max(0, totalBudget - totalPaid),
+			remaining,
 		})
 	} catch (error) {
 		await t.rollback()
