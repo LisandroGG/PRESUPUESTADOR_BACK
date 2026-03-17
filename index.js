@@ -30,19 +30,20 @@ app.use(cookieParser())
 app.use(express.json({ limit: "100kb" }))
 app.use(express.urlencoded({ extended: true, limit: "100kb" }))
 
+const isProduction = process.env.ELECTRON_RUN_AS_NODE === "1"
+
 const logger = pino({
-	level: process.env.LOG_LEVEL || "info",
-	transport:
-		process.env.NODE_ENV !== "production"
-			? {
-					target: "pino-pretty",
-					options: {
-						colorize: true,
-						translateTime: "yyyy-mm-dd HH:MM:ss",
-						ignore: "pid,hostname",
-					},
-				}
-			: undefined,
+  level: process.env.LOG_LEVEL || "info",
+  transport: isProduction
+    ? undefined
+    : {
+        target: "pino-pretty",
+        options: {
+          colorize: true,
+          translateTime: "yyyy-mm-dd HH:MM:ss",
+          ignore: "pid,hostname",
+        },
+      },
 })
 
 app.use(

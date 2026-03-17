@@ -24,6 +24,7 @@
 		"jsonwebtoken": "^9.0.2",
 		"pino": "^10.1.0",
 		"pino-http": "^11.0.0",
+		"presupuestador": "file:..",
 		"puppeteer": "^24.37.4",
 		"sequelize": "^6.37.7",
 		"sqlite3": "^5.1.7"
