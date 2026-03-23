@@ -10,8 +10,8 @@ dotenv.config({
 })
 
 const storagePath = process.env.USER_DATA_PATH
-  ? path.join(process.env.USER_DATA_PATH, "database.sqlite")
-  : path.resolve(__dirname, "../../database/database.sqlite")
+	? path.join(process.env.USER_DATA_PATH, "database.sqlite")
+	: path.resolve(__dirname, "../../database/database.sqlite")
 
 export const sequelize = new Sequelize({
 	dialect: "sqlite",

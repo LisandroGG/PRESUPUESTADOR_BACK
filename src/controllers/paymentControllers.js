@@ -1,5 +1,5 @@
-import { sequelize } from "../config/database.js"
 import { Op } from "sequelize"
+import { sequelize } from "../config/database.js"
 import { paymentMessages } from "../helpers/messages.js"
 import { buildPagedResponse, getPagination } from "../helpers/pagination.js"
 import { sendError } from "../helpers/response.js"
@@ -115,68 +115,68 @@ export const deletePayment = async (req, res) => {
 }
 
 export const getAllChecks = async (req, res) => {
-    try {
-        const { checkEntity, exchanged } = req.query
-        const { page, limit, offset } = getPagination(req.query, 12)
+	try {
+		const { checkEntity, exchanged } = req.query
+		const { page, limit, offset } = getPagination(req.query, 12)
 
-        const conditions = [{ method: "Cheque" }]
+		const conditions = [{ method: "Cheque" }]
 
-        if (checkEntity) {
-            conditions.push({
-                checkEntity: { [Op.like]: `%${checkEntity}%` },
-            })
-        }
+		if (checkEntity) {
+			conditions.push({
+				checkEntity: { [Op.like]: `%${checkEntity}%` },
+			})
+		}
 
 		if (exchanged === "true") {
-            conditions.push({
-                checkExchangeDate: { [Op.not]: null },
-            })
-        }
+			conditions.push({
+				checkExchangeDate: { [Op.not]: null },
+			})
+		}
 
-        if (exchanged === "false") {
-            conditions.push({
-                checkExchangeDate: null,
-            })
-        }
+		if (exchanged === "false") {
+			conditions.push({
+				checkExchangeDate: null,
+			})
+		}
 
-        const { count: total, rows } = await Payment.findAndCountAll({
-            where: { [Op.and]: conditions },
-            limit,
-            offset,
-            order: [["id", "DESC"]],
-        })
+		const { count: total, rows } = await Payment.findAndCountAll({
+			where: { [Op.and]: conditions },
+			limit,
+			offset,
+			order: [["id", "DESC"]],
+		})
 
-        res.status(200).json(buildPagedResponse(rows, total, page, limit))
-    } catch (error) {
-        req.log.error("Error al obtener cheques", error)
+		res.status(200).json(buildPagedResponse(rows, total, page, limit))
+	} catch (error) {
+		req.log.error("Error al obtener cheques", error)
 		console.log("error:", error)
-        return sendError(res, "Error al obtener cheques", 500)
-    }
+		return sendError(res, "Error al obtener cheques", 500)
+	}
 }
 
 export const updateCheckDetails = async (req, res) => {
-    const { id } = req.params
-    const { checkExchangeDate, checkEntity } = req.body
+	const { id } = req.params
+	const { checkExchangeDate, checkEntity } = req.body
 
-    try {
-        const payment = await Payment.findByPk(id)
+	try {
+		const payment = await Payment.findByPk(id)
 
-        if (!payment) {
-            return sendError(res, paymentMessages.NOT_FOUND, 404)
-        }
+		if (!payment) {
+			return sendError(res, paymentMessages.NOT_FOUND, 404)
+		}
 
-        if (payment.method !== "Cheque") {
-            return sendError(res, "El pago no es un cheque", 400)
-        }
+		if (payment.method !== "Cheque") {
+			return sendError(res, "El pago no es un cheque", 400)
+		}
 
-        await payment.update({ checkExchangeDate, checkEntity, exchanged: true })
+		await payment.update({ checkExchangeDate, checkEntity, exchanged: true })
 
-        res.status(200).json({
-            message: "Datos del cheque actualizados",
-            payment,
-        })
-    } catch (error) {
-        req.log.error("Error al actualizar cheque", error)
-        return sendError(res, "Error al actualizar cheque", 500)
-    }
+		res.status(200).json({
+			message: "Datos del cheque actualizados",
+			payment: payment,
+		})
+	} catch (error) {
+		req.log.error("Error al actualizar cheque", error)
+		return sendError(res, "Error al actualizar cheque", 500)
+	}
 }

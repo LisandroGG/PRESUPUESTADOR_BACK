@@ -2,9 +2,9 @@ import { Router } from "express"
 import {
 	createPayment,
 	deletePayment,
-	getAllPaymentsFromBadget,
 	getAllChecks,
-	updateCheckDetails
+	getAllPaymentsFromBadget,
+	updateCheckDetails,
 } from "../controllers/paymentControllers.js"
 import { validatePayment } from "../middlewares/validatePayment.js"
 
