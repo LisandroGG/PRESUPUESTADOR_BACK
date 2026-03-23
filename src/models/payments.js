@@ -21,6 +21,19 @@ export const Payment = sequelize.define(
 			type: DataTypes.DATEONLY,
 			allowNull: false,
 		},
+		checkExchangeDate: {
+            type: DataTypes.DATEONLY,
+            allowNull: true,
+        },
+        checkEntity: {
+            type: DataTypes.STRING,
+            allowNull: true,
+        },
+		exchanged: {
+            type: DataTypes.BOOLEAN,
+            allowNull: true,
+            defaultValue: false,
+        },
 	},
 	{
 		timestamps: false,
