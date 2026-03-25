@@ -21,6 +21,14 @@ export const Material = sequelize.define(
 			type: DataTypes.DECIMAL(10, 2),
 			allowNull: false,
 		},
+		tax: {
+			type: DataTypes.DECIMAL(5, 2),
+			allowNull: false,
+		},
+		totalCost: {
+			type: DataTypes.DECIMAL(10, 2),
+			allowNull: false,
+		},
 	},
 	{
 		timestamps: false,

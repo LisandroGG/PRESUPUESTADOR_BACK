@@ -54,7 +54,7 @@ export const getAllMaterialsForSelect = async (req, res) => {
 
 // Create a new material
 export const createMaterial = async (req, res) => {
-	const { name, provider, cost } = req.body
+	const { name, provider, cost, tax } = req.body
 
 	try {
 		const existingMaterial = await Material.findOne({
@@ -63,7 +63,14 @@ export const createMaterial = async (req, res) => {
 		if (existingMaterial) {
 			return sendError(res, materialMessages.DUPLICATE_MATERIAL, 400)
 		}
-		const newMaterial = await Material.create({ name, provider, cost })
+		const totalCost = Number((cost * (1 + tax / 100)).toFixed(2))
+		const newMaterial = await Material.create({
+			name,
+			provider,
+			cost,
+			tax,
+			totalCost,
+		})
 		res.status(200).json({
 			message: "Material creado exitosamente",
 			material: newMaterial,
@@ -95,7 +102,7 @@ export const deleteMaterial = async (req, res) => {
 // Update a material by ID
 export const updateMaterial = async (req, res) => {
 	const { id } = req.params
-	const { name, provider, cost } = req.body
+	const { name, provider, cost, tax } = req.body
 	try {
 		const material = await Material.findByPk(id)
 		if (!material) {
@@ -104,7 +111,15 @@ export const updateMaterial = async (req, res) => {
 
 		if (name) material.name = name
 		if (provider) material.provider = provider
-		if (cost) material.cost = cost
+		if (cost !== undefined) material.cost = cost
+		if (tax !== undefined) material.tax = tax
+
+		const currentCost = cost !== undefined ? cost : material.cost
+		const currentTax = tax !== undefined ? tax : material.tax
+		material.totalCost = Number(
+			(currentCost * (1 + currentTax / 100)).toFixed(2),
+		)
+
 		await material.save()
 		res.status(200).json({
 			message: "Material actualizado exitosamente",

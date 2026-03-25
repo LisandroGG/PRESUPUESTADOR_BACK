@@ -71,7 +71,7 @@ export const getProductById = async (req, res) => {
 			return sendError(res, productMessages.NOT_FOUND, 404)
 		}
 		const totalMaterialsCost = product.productMaterials.reduce(
-			(total, pm) => total + pm.quantity * Number(pm.material.cost),
+			(total, pm) => total + pm.quantity * Number(pm.material.totalCost),
 			0,
 		)
 

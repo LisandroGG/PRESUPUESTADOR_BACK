@@ -14,7 +14,7 @@ export const calculateProductCost = async (productId) => {
 	})
 
 	const materialsCost = productMaterials.reduce((t, pm) => {
-		return t + pm.quantity * Number(pm.material?.cost || 0)
+		return t + pm.quantity * Number(pm.material?.totalCost || 0)
 	}, 0)
 
 	const total = Number(product.productionCost || 0) + materialsCost
