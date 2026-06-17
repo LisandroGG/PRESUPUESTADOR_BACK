@@ -458,7 +458,12 @@ export const getBudgetPdf = async (req, res) => {
 		res.send(pdf)
 	} catch (error) {
 		if (page) await page.close().catch(() => {})
+			console.error("PDF ERROR:", error)
 		req.log.error("Error al generar PDF del presupuesto", error)
-		return sendError(res, error, 500)
+		return res.status(500).json({
+    success: false,
+    message: error?.message,
+    stack: error?.stack
+  })
 	}
 }

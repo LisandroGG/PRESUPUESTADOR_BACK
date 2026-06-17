@@ -104,7 +104,10 @@ export const updateClient = async (req, res) => {
 
 		const existingClient = await Client.findOne({
 			where: {
-				[Op.or]: [{ name }, { cuit }],
+				[Op.and]: [
+					{ id: { [Op.ne]: id } },
+					{ [Op.or]: [{name}, {cuit}] },
+				]
 			},
 		})
 		if (existingClient) {
